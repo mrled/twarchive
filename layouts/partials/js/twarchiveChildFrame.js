@@ -27,7 +27,9 @@ function twarchiveToggleTweetExplanation(button, tweetId) {
 function twarchiveHandleDataUri(dataUri) {
   if (window == window.top) {
     // If this page is the top frame, we need display the image ourselves
-    window.location.search = `?twarchive-datauri=${dataUri}`;
+    window.location.hash = `?twarchive-datauri#${dataUri}`;
+    window.location.href = `${window.location.href}?twarchive-datauri#${dataUri}`;
+    console.log(`Setting window.location.href to ${window.location.href}`)
     twarchiveDisplayDataUri();
   } else {
     // If we are in an iframe, we should tell our parent to display the image

@@ -52,7 +52,8 @@ function twarchiveReceiveFrameMessage(event) {
       twarchiveResizeTweetFrames(event.data.tweetId);
       break;
     case "twarchive-display-data-uri":
-      window.location.search = `?twarchive-datauri=${event.data.dataUri}`;
+      window.location.href = `${window.location.href}?twarchive-datauri#${event.data.dataUri}`;
+      console.log(`Setting window.location.href to ${window.location.href}`)
       twarchiveDisplayDataUri();
       break;
     default:
