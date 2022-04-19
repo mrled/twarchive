@@ -1,0 +1,174 @@
+/* twarchiveRoot.scss
+ *
+ * Styles for twarchive tweets.
+ * Used internally, sites using this theme do not need to include this.
+ */
+
+:root {
+  --twarchive-body-bg-color: white;
+  --twarchive-body-fg-color: black;
+  --twarchive-about-text-bg-color: lightgray;
+  --twarchive-body-fg-color-deemphasize-nontext: #ddd;
+  --twarchive-body-fg-color-deemphasize-text: gray;
+  --twarchive-dt-fg-color: rgb(101, 119, 134);
+  --twarchive-username-fg-color: rgb(101, 119, 134);
+  --twarchive-about-button-bg-color: lightgray;
+  --twarchive-about-button-fg-color: black;
+  --twarchive-font-size: 0.85em;
+  --twarchive-line-height: 1.4em;
+  --twarchive-pfp-size: 3em;
+}
+
+.twarchive-qt {
+  --twarchive-pfp-size: 2em;
+}
+
+blockquote.twarchive {
+
+  *, *:hover, *:hover *{
+    all: revert;
+  }
+
+  margin: 0;
+  background-color: var(--twarchive-body-bg-color);
+  border-style: solid;
+  border-width: .1em;
+  border-color: var(--twarchive-body-fg-color-deemphasize-nontext);
+  padding: 1em;
+  font-family: sans-serif;
+
+  font-size: var(--twarchive-font-size);
+  line-height: var(--twarchive-line-height);
+  max-width: 30rem;
+
+  .twarchive-rt-banner p {
+    margin: 0 0 0.5em 0;
+    padding: 0 0.5em 0.25em 0;
+    border-bottom: 1px dotted black;
+    border-right: 1px dotted black;
+    display: inline-block;
+  }
+
+  .twarchive-qt {
+    border-style: solid;
+    border-width: .1em;
+    border-color: var(--twarchive-body-fg-color-deemphasize-nontext);
+    margin-bottom: 1em;
+
+    blockquote.twarchive {
+      margin: 1em;
+    }
+  }
+
+  a.twarchive-user {
+    text-decoration: none;
+    .twarchive-pfp {
+      float: left;
+      width: var(--twarchive-pfp-size);
+      height: var(--twarchive-pfp-size);
+      border-radius: 50%;
+      margin: 0 .5rem 0 0;
+      border-style: solid;
+      border-width: .1em;
+      border-color: var(--twarchive-body-fg-color-deemphasize-nontext);
+    }
+    .twarchive-display-name {
+      margin: 0;
+      text-decoration: none;
+      color: var(--twarchive-body-fg-color);
+    }
+    .twarchive-username {
+      margin: 0;
+      font-weight: normal;
+      color: var(--twarchive-username-fg-color);
+    }
+  }
+
+  .twarchive-id {
+    font-size: 70%;
+    color: var(--twarchive-body-fg-color-deemphasize-text);
+    margin: 0;
+    padding: 0;
+  }
+
+  .twarchive-about-button {
+    float: right;
+    border-radius: 1em;
+    border: none;
+    width: 2em;
+    height: 2em;
+    text-align: center;
+    padding: 0;
+    background-color: var(--twarchive-about-button-bg-color);
+    color: var(--twarchive-about-button-fg-color);
+  }
+  .twarchive-metadata {
+    .twarchive-about-explanation {
+      background-color: var(--twarchive-about-text-bg-color);
+      color: var(--twarchive-body-fg-color-deemphasize-text);
+      font-size: .8rem;
+      line-height: 1.2rem;
+      padding: 0.5em;
+    }
+  }
+
+  .twarchive-text {
+    clear: both;
+    color: var(--twarchive-body-fg-color);
+  }
+
+  ol.media-twarchive-list {
+    list-style-type: none;
+    padding: 0;
+
+    li:before {
+      content: "";
+      padding: 0;
+      margin: 0;
+    }
+    li {
+      display: inline-block;
+      padding: 0.25em;
+      margin: 0;
+
+      // This is actually nice for 1, 2, 3, or 4 -image tweets,
+      // as you can see a square-ish image but it doesn't take up too much vertical space.
+      width: 45%;
+      max-height: 10rem;
+      overflow: hidden;
+      object-fit: cover;
+
+      .media-twarchive {
+        max-width: 100%;
+        border-style: solid;
+        border-width: .1em;
+        border-color: var(--twarchive-body-fg-color-deemphasize-nontext);
+      }
+    }
+  }
+
+  //ol.media-twarchive-list-1 li {
+  //  max-width: 100%;
+  //}
+  //ol.media-twarchive-list-2 li {
+  //  max-width: 45%;
+  //}
+  //ol.media-twarchive-list-3 li {
+  //  max-width: 30%;
+  //}
+  //ol.media-twarchive-list-4 li {
+  //  max-width: 20%;
+  //}
+
+  .twarchive-footer {
+    .twarchive-original-link {
+      .twarchive-dt {
+        font-family: sans-serif;
+        margin: 0;
+        padding-bottom: 1rem;
+        color: var(--twarchive-dt-fg-color);
+        text-decoration: none;
+      }
+    }
+  }
+}

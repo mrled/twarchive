@@ -1,0 +1,16 @@
+{{/** Wrap a tweet in a collapsible summary/detail element
+    *
+    * Expects to be passed a dict of the form:
+    *  ctx         The dot context
+    *  tweetId     The ID of a tweet already downloaded by my `tweet` script to data/twarchive/$tweetId.json
+    *  open        If the details should be open when the page loads
+    */}}
+{{- $tweet := index .ctx.Site.Data.twarchive .tweetId -}}
+<details class="twarchive-collapsible" {{ with .open }}open {{ end }}>
+  <summary>
+    <span class="twarchive-collapsible-summary">
+      @{{ $tweet.username}}: {{ $tweet.full_text }}
+    </span>
+  </summary>
+  {{- partial "twarchiveFrame.html" (dict "ctx" .ctx "tweetId" .tweetId) -}}
+</details>

@@ -1,0 +1,13 @@
+/* twarchiveDarkModeOverrides.scss
+ *
+ * Styles for twarchive tweets.
+ * Used internally, sites using this theme do not need to include this.
+ */
+
+:root {
+  --twarchive-body-bg-color: black;
+  --twarchive-body-fg-color: white;
+  --twarchive-body-fg-color-deemphasize-nontext: rgb(57, 57, 57);
+  --twarchive-about-button-bg-color: #3d3d3d;
+  --twarchive-about-button-fg-color: white;
+}

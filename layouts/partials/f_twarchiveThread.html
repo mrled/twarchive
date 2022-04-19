@@ -1,0 +1,21 @@
+{{/*-----------------------------------------------------------------------------------------------
+   * Return all twitter threads based on thread_parent_id
+   *
+   * This is a "partial" that is really a function that modifies a scratch var.
+   * See also https://danilafe.com/blog/hugo_functions/
+   *
+   * To call it, you must pass it a scratch var that you expect it to modify.
+   * It will return without printing anything to the calling page
+   * (except some newlines).
+   *
+   *     $thread := newScratch
+   *     partial "f_twitterThread.html" (dict "ctx" . "thread" $thread "lastTweetIdInThread" "123456...")
+   *
+   */}}
+{{- $tweet := index .ctx.Site.Data.twarchive .lastTweetIdInThread }}
+{{- if $tweet.thread_parent_id -}}
+  {{- partial "f_twarchiveThread.html" (dict "ctx" .ctx "thread" .thread "lastTweetIdInThread" $tweet.thread_parent_id) -}}
+  {{- .thread.Add "tweets" (slice .lastTweetIdInThread) -}}
+{{- else -}}
+  {{- .thread.Add "tweets" (slice .lastTweetIdInThread) -}}
+{{- end -}}

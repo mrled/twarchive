@@ -1,0 +1,25 @@
+/* twarchiveStyles.scss
+ *
+ * This file should be referenced by a site using this theme.
+ */
+
+details.twarchive-collapsible summary {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 25em;
+}
+
+details.twarchive-collapsible[open] summary span.twarchive-collapsible-summary {
+  /* Using the non-text deemphasize color here bc it is closer to the bg color.
+    * This is better than having the text disappear completely,
+    * but it doesn't even need to be readable at this point,
+    * we keep it on screen and very deemphasized so there is continuity
+    * between the open/closed states.
+    */
+  color: var(--twarchive-body-fg-color-deemphasize-nontext);
+}
+
+iframe.twarchive-html-iframe {
+  width: 25rem;
+}

@@ -1,0 +1,124 @@
+{{/* Given a tweet JSON from scripts/tweet, inline it as HTML
+   *
+   * Expects to be passed a dict of the form:
+   *  ctx         The dot context
+   *  tweetId     The ID of a tweet already downloaded by my `tweet` script to data/twarchive/$tweetId.json
+   *  isQt        If true, then we are rendering a QT'd tweet inside of another tweet.
+   *              In that case, everything is mostly the same, but we don't render any tweets that THIS tweet QTs.
+   *  rtId       The ID of a tweet that RTs this one. Used internally.
+   */}}
+{{- $tweet := index .ctx.Site.Data.twarchive .tweetId -}}
+{{- $tweetLocalArchivePage := "" -}}
+{{- if $tweet -}}
+{{- $tweetLocalArchivePage = ref .ctx (printf "/twarchive/%s" .tweetId) -}}
+{{- end -}}
+
+{{/** Twitter will auto redirect tweets with the wrong username in the URL based only on the tweet ID
+    * We can use this to provide a link to a tweet even if it isn't archived locally.
+    * <https://www.bram.us/2017/11/22/accessing-a-tweet-using-only-its-id-and-without-the-twitter-api/>
+    */}}
+{{- $tweetUri := printf "https://twitter.com/%s/status/%s" ($tweet.username | default "_") .tweetId -}}
+
+{{- $userUri := printf "https://twitter.com/%s" $tweet.username -}}
+{{- $tweetBody := $tweet.full_body_strip_qts -}}
+{{- if .isQt }}
+{{- $tweetBody = $tweet.full_body_link_qts -}}
+{{- end -}}
+{{- $tweetMediaLen := 0 -}}
+{{- if $tweet.media }}{{ $tweetMediaLen = len $tweet.media }}{{ end -}}
+
+{{- if $tweet.rt_of -}}
+{{- partial "twarchiveSingleTweet.html" (dict "ctx" .ctx "tweetId" $tweet.rt_of "rtId" $tweet.id) -}}
+{{- else -}}
+<blockquote class="twarchive" xmlns="http://www.w3.org/1999/xhtml">
+  {{- if .rtId -}}
+  {{- $retweet := index .ctx.Site.Data.twarchive .rtId -}}
+  {{- $rtUserUri := printf "https://twitter.com/%s" $retweet.username -}}
+  {{- $rtLocalArchivePage := ref .ctx (printf "/twarchive/%s" .rtId) -}}
+  <div class="twarchive-rt-banner">
+    <p>
+      <a href="{{ $rtUserUri }}">@{{ $retweet.username }}</a>
+      <a href="{{ $rtLocalArchivePage }}">retweeted</a>
+    </p>
+  </div>
+  {{- end -}}
+  <button class="twarchive-about-button" onclick="twarchiveToggleTweetExplanation(this, '{{ $tweet.id }}')">
+    ?
+  </button>
+
+  <a class="twarchive-user" href="{{ $userUri }}">
+    <img class="twarchive-pfp" alt="" src="data:image/jpeg;base64,{{ $tweet.user_pfp }}" />
+    <p class="twarchive-display-name">{{ $tweet.user_displayname }}</p>
+    <p class="twarchive-username">@{{ $tweet.username }}</p>
+  </a>
+
+  <div class="twarchive-metadata">
+    <div style="display: none;" class="twarchive-about-explanation">
+      <p class="twarchive-id">
+        Tweet ID {{ .tweetId }}
+      </p>
+      {{- if $tweet -}}
+      {{/* I wish I could have the normal click just show the link in a new window, but that won't work on Chromium browsers
+          * Chrome has disabled data: URIs for left clicks, but still allows them for right click -> new window.
+          */}}
+      <p>Tweet was retrieved from the Twitter API on {{ $tweet.retrieved_date }} and is presented in pure HTML+CSS, without Twitter's official styles or official tracking.</p>
+      <p>
+        {{ if $tweetLocalArchivePage }}(<a href="{{ $tweetLocalArchivePage }}">local archive</a>){{ else }}(no local archive){{ end }}
+        (<a href="{{ $tweetUri }}">twitter</a>)
+        (<a href="" download="tweet-{{ $tweet.id }}.html">download</a>)
+      </p>
+      {{- else -}}
+      <p>Error: at build time, could not find data for tweet ID: <code>{{ .tweetId }}</code></p>
+      {{- end -}}
+      <p><a href='{{ ref .ctx "/twarchive" }}'>About archived tweets</a></p>
+    </div>
+  </div>
+
+  {{- if .isQt -}}
+    <p class="twarchive-text">{{ $tweet.full_html_link_qts | safeHTML }}</p>
+  {{- else -}}
+    <p class="twarchive-text">{{ $tweet.full_html_strip_qts | safeHTML }}</p>
+  {{- end -}}
+
+  <ol class="media-twarchive-list media-twarchive-list-{{ $tweetMediaLen }}">
+    {{- range $tweet.media -}}
+    {{- $dataUri := printf "data:%s;base64,%s" .content_type .data | safeURL -}}
+    <li>
+      <a href="{{ $dataUri }}" onclick="twarchiveHandleDataUri('{{ $dataUri }}');">
+        {{- if eq .media_type "photo" -}}
+          {{/* This should be mandatory withouto a default value, but I already have some old tweets that might not have it populated ... */}}
+          <img class="media-twarchive" width="{{ .width }}" src='{{ $dataUri }}' alt="{{ .alttext }}" />
+        {{- else if eq .media_type "video" -}}
+          <video autoplay muted controls loop class="media-twarchive" width="{{ .width }}" alt="{{ .alttext }}">
+            <source src="{{ $dataUri }}" type="{{ .content_type }}" />
+          </video>
+        {{- else if eq .media_type "animated_gif" -}}
+          <video autoplay muted controls loop class="media-twarchive" width="{{ .width }}" alt="{{ .alttext }}">
+            <source src="{{ $dataUri }}" type="{{ .content_type }}" />
+          </video>
+        {{- else -}}
+          {{/* Change this to 'warnf' and the site will build but a warning will be printed */}}
+          {{- errorf "Unknown media type '%s' for tweet ID '%s'" .media_type $tweet.id -}}
+        {{- end -}}
+      </a>
+    </li>
+    {{- end -}}
+  </ol>
+
+  {{- if and (not .isQt) $tweet.qts -}}
+  {{- $ctx := .ctx }}
+  {{- range $qt := $tweet.qts -}}
+  <div class="twarchive-qt">
+  {{- partial "twarchiveSingleTweet.html" (dict "ctx" $ctx "tweetId" $qt "isQt" true) -}}
+  </div>
+  {{- end -}}
+  {{- end -}}
+
+  <div class="twarchive-footer">
+    <a class="twarchive-original-link" href="{{ $tweetUri }}">
+      <time class="twarchive-dt" datetime="{{ $tweet.date }}">{{ $tweet.date_original_format }}</time>
+    </a>
+  </div>
+
+</blockquote>
+{{- end -}}

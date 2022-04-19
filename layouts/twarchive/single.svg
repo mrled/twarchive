@@ -1,0 +1,25 @@
+{{/** This does not work well yet.
+    */}}
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  height="500"
+>
+  <g class="foreign-object-wrapper">
+    <foreignObject
+      width="100%"
+      height="100%"
+      fill="#eade52"
+    >
+      <style>
+        {{- $twarchiveRoot := resources.Get "styles/twarchiveRoot.scss" | resources.ToCSS | minify -}}
+        {{- $twarchiveRoot.Content | safeCSS -}}
+      </style>
+      <style id="twarchive-dark-mode-overrides" media="all and (prefers-color-scheme: dark)">
+        {{- $twarchiveDarkModeOverrides := resources.Get "styles/twarchiveDarkModeOverrides.scss" | resources.ToCSS | minify -}}
+        {{- $twarchiveDarkModeOverrides.Content | safeCSS -}}
+      </style>
+      {{- partial "twarchiveSingleTweet.html" (dict "ctx" . "tweetId" .Params.tweetid) -}}
+    </foreignObject>
+  </g>
+</svg>

@@ -1,0 +1,28 @@
+{{/* Given a tweet JSON from scripts/tweet, inline it as HTML
+   *
+   * Expects to be passed a dict of the form:
+   *  ctx         The dot context
+   *  lastId      The ID of the _final_ tweet in a thread.
+                  Twitter doesn't let us get a thread from the _first_ tweet!
+   *  openId      The tweet to show as "open".
+                  Can be a specific ID in the thread, "first", or "all".
+                  If not specified, assume "first".
+   */}}
+{{- $ctx := .ctx -}}
+{{- $openId := .openId -}}
+{{- $lastTweet := index .ctx.Site.Data.twarchive .lastId -}}
+
+{{- $thread := newScratch -}}
+{{- partial "f_twarchiveThread.html" (dict "ctx" .ctx "thread" $thread "lastTweetIdInThread" .lastId )}}
+
+{{- if or (eq $openId "first") (eq $openId "") -}}
+{{- $openId = index ($thread.Get "tweets") 0 }}
+{{- else if eq $openId "last" -}}
+{{- $openId = .lastId -}}
+{{- end -}}
+
+{{- range $tweetIdx, $tweetId := $thread.Get "tweets" -}}
+{{- $open := or (eq $openId "all") (eq $openId $tweetId) }}
+{{- $tweet := index $ctx.Site.Data.twarchive $tweetId -}}
+{{- partial "twarchiveCollapsible.html" (dict "ctx" $ctx "tweetId" $tweetId "open" $open) }}
+{{- end -}}

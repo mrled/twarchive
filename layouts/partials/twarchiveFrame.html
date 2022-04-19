@@ -1,0 +1,32 @@
+{{/** Show an iframe of a tweet page generated in content/twarchive/$tweetId/
+    *
+    * Expects to be passed a dict of the form:
+    *  ctx         The dot context
+    *  tweetId     The ID of a tweet already downloaded by my `tweet` script to data/twarchive/$tweetId.json
+    */}}
+{{- $ctx := .ctx -}}
+{{- $tweet := index $ctx.Site.Data.twarchive .tweetId -}}
+{{- $tweetArchivePageRef := printf "/twarchive/%s/index.tweet.html" .tweetId }}
+
+<iframe
+  id="twarchive-html-iframe"
+  class="twarchive-html-iframe twarchive-html-iframe-{{ $tweet.id }}"
+  style="box-sizing: border-box;"
+  scrolling="no"
+  src='{{ $tweetArchivePageRef }}'
+></iframe>
+
+<script>
+  {{- partial "js/twarchiveTopFrame.js" | safeJS -}}
+
+  twarchiveResizeTweetFrames();
+
+  if (!window.tweetIframeEventListenerHasBeenSet) {
+    // console.log("Setting twarchiveReceiveFrameMessage event listener...")
+    window.tweetIframeEventListenerHasBeenSet = true;
+    window.addEventListener("message", twarchiveReceiveFrameMessage)
+  // } else {
+  //   console.log("Not setting event listener as twarchiveReceiveFrameMessage is already set")
+  }
+
+</script>

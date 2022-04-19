@@ -1,0 +1,35 @@
+<html style="height: 100%; overflow: visible;">
+
+{{- $tweet := index .Site.Data.twarchive .Params.tweetid -}}
+
+<head>
+  <base target="_parent" />
+  <title>Tweet from @{{ $tweet.username}} on {{ .Date.Format .Site.Params.dateform }}</title>
+  <style>
+    {{- $twarchiveRoot := resources.Get "styles/twarchiveRoot.scss" | resources.ToCSS | minify -}}
+    {{- $twarchiveRoot.Content | safeCSS -}}
+  </style>
+  <style id="twarchive-dark-mode-overrides" media="all and (prefers-color-scheme: dark)">
+    {{- $twarchiveDarkModeOverrides := resources.Get "styles/twarchiveDarkModeOverrides.scss" | resources.ToCSS | minify -}}
+    {{- $twarchiveDarkModeOverrides.Content | safeCSS -}}
+  </style>
+</head>
+
+<body>
+<section id="content" class="single-tweet">
+  {{ partial "twarchiveSingleTweet.html" (dict "ctx" . "tweetId" .Params.tweetid) }}
+</section>
+
+<script>
+  {{- partial "js/twarchiveChildFrame.js" | safeJS -}}
+  const tweetId = "{{ .Params.tweetId }}"
+
+  twarchiveMessageSizeToParent(tweetId);
+  const resizeObserver = new ResizeObserver(e => twarchiveMessageSizeToParent(tweetId));
+  resizeObserver.observe(document.documentElement);
+
+  twarchiveDisplayDataUri();
+</script>
+
+</body>
+</html>

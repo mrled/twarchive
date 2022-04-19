@@ -1,0 +1,29 @@
+{{/** This is just an example section.html.
+    * You probably want to override this with one in your site which uses your site's CSS, partials, etc.
+    */}}
+<html>
+<head>
+  <title>Tweet archive</title>
+</head>
+<body>
+<section id="content">
+
+  {{- .Content -}}
+
+  <p>Every tweet archived on this site</p>
+
+  <ul class="posts_listing">
+    {{- range .Data.Pages.ByPublishDate.Reverse -}}
+    {{- $tweet := index .Site.Data.twarchive .Params.tweetid -}}
+    <li>
+      <a href="{{ .Permalink }}">
+        <time>{{ .Date.Format (.Site.Params.dateform | default "January 2006") }}</time>:
+        @{{ $tweet.username }}
+        {{ .Params.tweetid -}}
+      </a>
+    </li>
+    {{ end }}
+  </ul>
+</section>
+</body>
+</html>
