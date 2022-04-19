@@ -10,3 +10,7 @@ min_version = "0.96.0"
 [author]
   name = "Micah R Ledbetter"
   homepage = "https://me.micahrl.com"
+
+[module]
+[[module.imports]]
+path = "github.com/mrled/twarchive"
