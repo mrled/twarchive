@@ -28,6 +28,29 @@ but are not needed for Hugo to build the site after tweet data is downloaded.
 This project was designed so that you run the script manually and commit the results to your repo,
 and production deployment (eg to Netlify) does not need Python.
 
+## Using the Hugo theme with your site
+
+You have to enable your site as a Hugo module.
+Here's what I did for my site at <https://me.micahrl.com>.
+(This theme is endorsed by YAML GANG, TOMLailures stay mad.)
+
+```sh
+cd /path/to/me.micahrl.com      # The git checkout dir for my site
+hugo mod init me.micahrl.com    # Create a mod.go for my site
+```
+
+In your site's configuration file,
+themes should be defined in a list,
+using the go module name for the twarchive theme.
+Here's my site's config.
+
+```yaml
+theme:
+- micahrl                       # My site's main theme, found at themes/micahrl
+- cistercian                    # A secondary theme I made for my site, found at themes/cistercian
+- github.com/mrled/twarchive    # twarchive theme, NOT checked out inside of themes/, used directly
+```
+
 ## The `twarchive` command
 
 ```
