@@ -51,6 +51,15 @@ theme:
 - github.com/mrled/twarchive    # twarchive theme, NOT checked out inside of themes/, used directly
 ```
 
+You'll need to get the `twarchive` theme, with a command like:
+
+```sh
+hugo mod get
+```
+
+Now your site should be using the `twarchive` theme.
+`hugo` should successfully build your site, etc.
+
 ## The `twarchive` command
 
 ```
