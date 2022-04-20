@@ -4,16 +4,20 @@
  * Used internally, sites using this theme do not need to include this.
  */
 
+@import "twarchiveColors.scss";
+
 :root {
-  --twarchive-body-bg-color: white;
-  --twarchive-body-fg-color: black;
-  --twarchive-about-text-bg-color: lightgray;
-  --twarchive-body-fg-color-deemphasize-nontext: #ddd;
-  --twarchive-body-fg-color-deemphasize-text: gray;
-  --twarchive-dt-fg-color: rgb(101, 119, 134);
-  --twarchive-username-fg-color: rgb(101, 119, 134);
-  --twarchive-about-button-bg-color: lightgray;
-  --twarchive-about-button-fg-color: black;
+  --twarchive-body-bg-color: var(--twarchive-twitter-2xlightgray);
+  --twarchive-body-fg-color: var(--twarchive-twitter-black);
+  --twarchive-about-text-bg-color: var(--twarchive-twitter-xlightgray);
+  --twarchive-about-text-fg-color: var(--twarchive-twitter-darkgray);
+  --twarchive-border-color: var(--twarchive-twitter-lightgray);
+  --twarchive-dt-fg-color: var(--twarchive-twitter-lightgray);
+  --twarchive-username-fg-color: var(--twarchive-twitter-lightgray);
+  --twarchive-about-button-bg-color: var(--twarchive-twitter-xlightgray);
+  --twarchive-about-button-fg-color: var(--twarchive-twitter-black);
+  --twarchive-expanded-header-fg-color: var(--twarchive-twitter-darkgray);
+
   --twarchive-font-size: 0.85em;
   --twarchive-line-height: 1.4em;
   --twarchive-pfp-size: 3em;
@@ -33,13 +37,21 @@ blockquote.twarchive {
   background-color: var(--twarchive-body-bg-color);
   border-style: solid;
   border-width: .1em;
-  border-color: var(--twarchive-body-fg-color-deemphasize-nontext);
+  border-color: var(--twarchive-border-color);
   padding: 1em;
   font-family: sans-serif;
 
   font-size: var(--twarchive-font-size);
   line-height: var(--twarchive-line-height);
   max-width: 30rem;
+
+  a {
+    text-decoration: none;
+    color: var(--twarchive-twitter-blue);
+    &:visited {
+      color: var(--twarchive-twitter-blue);
+    }
+  }
 
   .twarchive-rt-banner p {
     margin: 0 0 0.5em 0;
@@ -52,7 +64,7 @@ blockquote.twarchive {
   .twarchive-qt {
     border-style: solid;
     border-width: .1em;
-    border-color: var(--twarchive-body-fg-color-deemphasize-nontext);
+    border-color: var(--twarchive-border-color);
     margin-bottom: 1em;
 
     blockquote.twarchive {
@@ -70,7 +82,7 @@ blockquote.twarchive {
       margin: 0 .5rem 0 0;
       border-style: solid;
       border-width: .1em;
-      border-color: var(--twarchive-body-fg-color-deemphasize-nontext);
+      border-color: var(--twarchive-border-color);
     }
     .twarchive-display-name {
       margin: 0;
@@ -86,7 +98,6 @@ blockquote.twarchive {
 
   .twarchive-id {
     font-size: 70%;
-    color: var(--twarchive-body-fg-color-deemphasize-text);
     margin: 0;
     padding: 0;
   }
@@ -105,7 +116,7 @@ blockquote.twarchive {
   .twarchive-metadata {
     .twarchive-about-explanation {
       background-color: var(--twarchive-about-text-bg-color);
-      color: var(--twarchive-body-fg-color-deemphasize-text);
+      color: var(--twarchive-about-text-fg-color);
       font-size: .8rem;
       line-height: 1.2rem;
       padding: 0.5em;
@@ -142,7 +153,7 @@ blockquote.twarchive {
         max-width: 100%;
         border-style: solid;
         border-width: .1em;
-        border-color: var(--twarchive-body-fg-color-deemphasize-nontext);
+        border-color: var(--twarchive-border-color);
       }
     }
   }

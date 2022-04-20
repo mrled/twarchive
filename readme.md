@@ -127,6 +127,16 @@ This file creates the tweet iframes.
 If you want these to be styled differently,
 use CSS.
 
+I have some recommendations:
+
+```scss
+// Light mode:
+--twarchive-expanded-header-fg-color: var(--twarchive-twitter-lightgray);
+
+// Dark mode:
+--twarchive-expanded-header-fg-color: var(--twarchive-color-darkergray);
+```
+
 ## Example site
 
 I have a Hugo site at <https://tweets.micahrl.com> that contains just my tweet archive,

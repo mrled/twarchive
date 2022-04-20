@@ -3,6 +3,8 @@
  * This file should be referenced by a site using this theme.
  */
 
+@import "twarchiveColors.scss";
+
 details.twarchive-collapsible summary {
   text-overflow: ellipsis;
   overflow: hidden;
@@ -11,13 +13,7 @@ details.twarchive-collapsible summary {
 }
 
 details.twarchive-collapsible[open] summary span.twarchive-collapsible-summary {
-  /* Using the non-text deemphasize color here bc it is closer to the bg color.
-    * This is better than having the text disappear completely,
-    * but it doesn't even need to be readable at this point,
-    * we keep it on screen and very deemphasized so there is continuity
-    * between the open/closed states.
-    */
-  color: var(--twarchive-body-fg-color-deemphasize-nontext);
+  color: var(--twarchive-expanded-header-fg-color);
 }
 
 iframe.twarchive-html-iframe {
