@@ -21,5 +21,12 @@ details.twarchive-collapsible[open] summary span.twarchive-collapsible-summary {
 }
 
 iframe.twarchive-html-iframe {
+  border: none;
   width: 25rem;
+}
+
+@media (max-width: 400px) {
+  iframe.twarchive-html-iframe {
+    width: 20rem;
+  }
 }
