@@ -45,10 +45,62 @@ using the go module name for the twarchive theme.
 Here's my site's config.
 
 ```yaml
+
+# Set up themes
 theme:
 - micahrl                       # My site's main theme, found at themes/micahrl
 - cistercian                    # A secondary theme I made for my site, found at themes/cistercian
 - github.com/mrled/twarchive    # twarchive theme, NOT checked out inside of themes/, used directly
+
+# Set up media types
+mediaTypes:
+  text/html+tweet:
+    suffixes: ["tweet.html"]
+
+# Set up output formats
+outputFormats:
+  HtmlTweet:
+    mediatype: text/html+tweet
+    suffix: tweet.html
+    isPlainText: true
+    notAlternative: false
+```
+
+You'll to create the `twarchive` section in your site's content.
+That means a file `content/twarchive/_index.md` with frontmatter like:
+
+```md
+---
+title: Tweet archive
+outputs:
+    - HTML
+cascade:
+    outputs:
+        - HTML
+        - HtmlTweet
+---
+
+# Your tweet archive section page
+
+Insert any content you want here
+```
+
+In your site's `<head>`, you'll want to import CSS and JavaScript.
+Where this happens will depend on how your site is designed,
+but my sites tend to have a Hugo partial containing the `<head>` element,
+which might have lines like this:
+
+```go-html-template
+<head>
+  <!-- ... -->
+  {{- $twarchiveStyles := resources.Get "styles/twarchiveStyles.scss" | resources.ToCSS | resources.Fingerprint }}
+  <link rel="stylesheet" href="{{ $twarchiveStyles.Permalink }}">
+
+  <script>
+    {{- partial "js/twarchiveTopFrame.js" | safeJS -}}
+    twarchiveDisplayDataUri();
+  </script>
+</head>
 ```
 
 You'll need to get the `twarchive` theme, with a command like:
@@ -59,6 +111,29 @@ hugo mod get
 
 Now your site should be using the `twarchive` theme.
 `hugo` should successfully build your site, etc.
+
+## Customizing
+
+The `twarchive` theme ships with some default layout files for
+[`layouts/twarchive/section.html`](layouts/twarchive/section.html)
+and [`layouts/twarchive/single.html`](layouts/twarchive/single.html).
+
+You should feel free to copy those and override them by placing them in your site's
+`layouts/twarchive/` directory (create it if it doesn't exist).
+
+There is also a [`layouts/twarchive/single.tweet.html`](layouts/twarchive/single.tweet.html),
+but you should not override this one.
+This file creates the tweet iframes.
+If you want these to be styled differently,
+use CSS.
+
+## Example site
+
+I have a Hugo site at <https://tweets.micahrl.com> that contains just my tweet archive,
+and nothing more.
+
+You can see its source code, including a very barebones theme,
+[on GitHub](https://github.com/mrled/tweets.micahrl.com).
 
 ## The `twarchive` command
 
