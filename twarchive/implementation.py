@@ -1,76 +1,16 @@
-#!/usr/bin/env python3
-
-import argparse
 import base64
 import datetime
 import json
-import logging
 import os
-import pdb
 import re
 import subprocess
-import sys
 import textwrap
-import traceback
 import typing
-from collections.abc import Callable
 
 import requests
 import tweepy
 
-
-logging.basicConfig(
-    level=logging.INFO, format="[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s"
-)
-logger = logging.getLogger(__name__)
-
-
-def idb_excepthook(type, value, tb):
-    """Call an interactive debugger in post-mortem mode
-
-    If you do "sys.excepthook = idb_excepthook", then an interactive debugger
-    will be spawned at an unhandled exception
-    """
-    if hasattr(sys, "ps1") or not sys.stderr.isatty():
-        sys.__excepthook__(type, value, tb)
-    else:
-        traceback.print_exception(type, value, tb)
-        print
-        pdb.pm()
-
-
-def broken_pipe_handler(
-    func: Callable[[typing.List[str], int]], *arguments: typing.List[str]
-) -> int:
-    """Handler for broken pipes
-
-    Wrap the main() function in this to properly handle broken pipes
-    without a giant nastsy backtrace.
-    The EPIPE signal is sent if you run e.g. `script.py | head`.
-    Wrapping the main function with this one exits cleanly if that happens.
-
-    See <https://docs.python.org/3/library/signal.html#note-on-sigpipe>
-    """
-    try:
-        returncode = func(*arguments)
-        sys.stdout.flush()
-    except BrokenPipeError:
-        devnull = os.open(os.devnull, os.O_WRONLY)
-        os.dup2(devnull, sys.stdout.fileno())
-        # Convention is 128 + whatever the return code would otherwise be
-        returncode = 128 + 1
-    return returncode
-
-
-def resolvepath(path):
-    return os.path.realpath(os.path.normpath(os.path.expanduser(path)))
-
-
-def http_b64(uri):
-    """Fetch an HTTP URI and return base64 result of raw response"""
-    req = requests.get(uri)
-    b64 = base64.b64encode(req.content).decode()
-    return b64
+from twarchive import logger
 
 
 def uri_is_tweet(uri: str) -> bool:
@@ -81,20 +21,22 @@ def uri_is_tweet(uri: str) -> bool:
 def tweeturi2tweetid(uri: str) -> str:
     """Given a tweet URI, return just the tweet ID it contains"""
     m = re.match("https\:\/\/twitter\.com\/.*\/status\/(?P<tweetid>[0-9]+)", uri)
-    return m['tweetid']
+    return m["tweetid"]
 
 
 class Replacement(typing.NamedTuple):
     """Text replacement for a tweet body."""
+
     start: int
     end: int
     replace: str
 
 
-class TweetMediaAttachment():
+class TweetMediaAttachment:
     """A single media item like a photo"""
 
-    def __init__(self,
+    def __init__(
+        self,
         media_type: str,
         content_type: str,
         width: int,
@@ -119,7 +61,7 @@ class TweetMediaAttachment():
 
 def tweet_html_body(
     tweet: tweepy.models.Status,
-    render_qt_link = False,
+    render_qt_link=False,
 ) -> str:
     """Create an HTML tweet body from the Tweepy object for a single tweet.
 
@@ -137,27 +79,27 @@ def tweet_html_body(
                         If True, links to tweets will be rendered as regular <a> links.
     """
     replacements = {}
-    for hashtag in tweet.entities.get('hashtags', []):
-        hash = hashtag['text']
-        start, end = hashtag['indices']
+    for hashtag in tweet.entities.get("hashtags", []):
+        hash = hashtag["text"]
+        start, end = hashtag["indices"]
         replace = f'<a href="https://twitter.com/hashtag/{hash}">#{hash}</a>'
         replacements[start] = Replacement(start, end, replace)
-    for url in tweet.entities.get('urls', []):
-        expanded_url = url['expanded_url']
-        display_url = url['display_url']
-        start, end = url['indices']
+    for url in tweet.entities.get("urls", []):
+        expanded_url = url["expanded_url"]
+        display_url = url["display_url"]
+        start, end = url["indices"]
         if uri_is_tweet(expanded_url) and not render_qt_link:
             replace = ""
         else:
             replace = f'<a href="{expanded_url}">{display_url}</a>'
         replacements[start] = Replacement(start, end, replace)
-    for mention in tweet.entities.get('user_mentions', []):
-        start, end = mention['indices']
-        username = mention['screen_name']
+    for mention in tweet.entities.get("user_mentions", []):
+        start, end = mention["indices"]
+        username = mention["screen_name"]
         replace = f'<a href="https://twitter.com/{username}">@{username}</a>'
         replacements[start] = Replacement(start, end, replace)
-    for media in tweet.entities.get('media', []):
-        start, end = media['indices']
+    for media in tweet.entities.get("media", []):
+        start, end = media["indices"]
         replacements[start] = Replacement(start, end, "")
 
     htmlbody = tweet.full_text
@@ -166,8 +108,8 @@ def tweet_html_body(
     # Means all the indexes will stay correct
     for key in sorted(replacements.keys(), reverse=True):
         r = replacements[key]
-        pre = htmlbody[0:r.start]
-        post = htmlbody[r.end:len(htmlbody)]
+        pre = htmlbody[0 : r.start]
+        post = htmlbody[r.end : len(htmlbody)]
         htmlbody = pre + r.replace + post
 
     # Clients may insert newlines, but we have to convert them to <br/> or else it won't display them properly
@@ -181,26 +123,24 @@ def guess_mime_type(filename: str) -> str:
     # This is just a random list I found, lol
     mime_types = dict(
         # images
-        png='image/png',
-        jpe='image/jpeg',
-        jpeg='image/jpeg',
-        jpg='image/jpeg',
-        gif='image/gif',
-        bmp='image/bmp',
-        ico='image/vnd.microsoft.icon',
-        tiff='image/tiff',
-        tif='image/tiff',
-        svg='image/svg+xml',
-        svgz='image/svg+xml',
-
+        png="image/png",
+        jpe="image/jpeg",
+        jpeg="image/jpeg",
+        jpg="image/jpeg",
+        gif="image/gif",
+        bmp="image/bmp",
+        ico="image/vnd.microsoft.icon",
+        tiff="image/tiff",
+        tif="image/tiff",
+        svg="image/svg+xml",
+        svgz="image/svg+xml",
         # video
-        mp4='video/mp4',
-        qt='video/quicktime',
-        mov='video/quicktime',
-
+        mp4="video/mp4",
+        qt="video/quicktime",
+        mov="video/quicktime",
         # audio
-        mp3='audio/mpeg',
-        ogg='audio/ogg',
+        mp3="audio/mpeg",
+        ogg="audio/ogg",
     )
 
     extension = os.path.splitext(filename)[1][1:].lower()
@@ -208,12 +148,12 @@ def guess_mime_type(filename: str) -> str:
     # Some Twitter media URIs have a query string at the end, like
     # <https://video.twimg.com/ext_tw_video/1221557894694559750/pu/vid/320x568/Vnzq6WB09j9CMLOc.mp4?tag=10>
 
-    extension = re.sub('\?.*', '', extension)
+    extension = re.sub("\?.*", "", extension)
 
     return mime_types[extension]
 
 
-class InflatedTweet():
+class InflatedTweet:
     """A tweet with all supplemental data (like images) also downloaded"""
 
     def __init__(
@@ -228,13 +168,10 @@ class InflatedTweet():
         entities: typing.Any,
         qts: typing.List[str],
         rt_of: str,
-
         thread_parent_id: str,
-
         username: str,
         user_displayname: str,
         user_pfp: bytes,
-
         retrieved_date: datetime.datetime,
     ):
         self.id = id
@@ -263,7 +200,6 @@ class InflatedTweet():
 
         self.retrieved_date = retrieved_date
 
-
     @classmethod
     def from_tweet(cls, tweet: tweepy.models.Status):
         qts: typing.List[str] = []
@@ -273,55 +209,71 @@ class InflatedTweet():
             entities = tweet.entities
         except AttributeError:
             entities = {}
-        for item in entities.get('urls'):
-            if uri_is_tweet(item['expanded_url']):
-                qtid = tweeturi2tweetid(item['expanded_url'])
+        for item in entities.get("urls"):
+            if uri_is_tweet(item["expanded_url"]):
+                qtid = tweeturi2tweetid(item["expanded_url"])
                 qts += [qtid]
 
         try:
             extended_entities = tweet.extended_entities
         except AttributeError:
             extended_entities = {}
-        for item in extended_entities.get('media', []):
+        for item in extended_entities.get("media", []):
 
-            if item['type'] == 'photo':
-                w = item['sizes']['small']['w']
-                h = item['sizes']['small']['h']
-                alttext = item.get('media_alt_text', '')
-                url = item['media_url_https']
-                mime = item.get('content_type', guess_mime_type(url))
+            if item["type"] == "photo":
+                w = item["sizes"]["small"]["w"]
+                h = item["sizes"]["small"]["h"]
+                alttext = item.get("media_alt_text", "")
+                url = item["media_url_https"]
+                mime = item.get("content_type", guess_mime_type(url))
                 data = requests.get(url).content
-                attachment = TweetMediaAttachment('photo', mime, w, h, alttext, url, data)
+                attachment = TweetMediaAttachment(
+                    "photo", mime, w, h, alttext, url, data
+                )
                 media += [attachment]
 
-            elif item['type'] == 'video':
-                w = item['sizes']['small']['w']
-                h = item['sizes']['small']['h']
-                alttext = item.get('media_alt_text', '')
-                variants = {int(v['bitrate']): v for v in item['video_info']['variants'] if 'bitrate' in v}
+            elif item["type"] == "video":
+                w = item["sizes"]["small"]["w"]
+                h = item["sizes"]["small"]["h"]
+                alttext = item.get("media_alt_text", "")
+                variants = {
+                    int(v["bitrate"]): v
+                    for v in item["video_info"]["variants"]
+                    if "bitrate" in v
+                }
                 best_bitrate = max(variants.keys())
                 variant = variants[best_bitrate]
-                url = variant['url']
-                mime = variant.get('content_type', guess_mime_type(url))
+                url = variant["url"]
+                mime = variant.get("content_type", guess_mime_type(url))
                 data = requests.get(url).content
-                attachment = TweetMediaAttachment('video', mime, w, h, alttext, url, data)
+                attachment = TweetMediaAttachment(
+                    "video", mime, w, h, alttext, url, data
+                )
                 media += [attachment]
 
-            elif item['type'] == 'animated_gif':
-                w = item['sizes']['small']['w']
-                h = item['sizes']['small']['h']
-                alttext = item.get('media_alt_text', '')
-                variants = {int(v['bitrate']): v for v in item['video_info']['variants'] if 'bitrate' in v}
+            elif item["type"] == "animated_gif":
+                w = item["sizes"]["small"]["w"]
+                h = item["sizes"]["small"]["h"]
+                alttext = item.get("media_alt_text", "")
+                variants = {
+                    int(v["bitrate"]): v
+                    for v in item["video_info"]["variants"]
+                    if "bitrate" in v
+                }
                 best_bitrate = max(variants.keys())
                 variant = variants[best_bitrate]
-                url = variant['url']
-                mime = variant.get('content_type', guess_mime_type(url))
+                url = variant["url"]
+                mime = variant.get("content_type", guess_mime_type(url))
                 data = requests.get(url).content
-                attachment = TweetMediaAttachment('animated_gif', mime, w, h, alttext, url, data)
+                attachment = TweetMediaAttachment(
+                    "animated_gif", mime, w, h, alttext, url, data
+                )
                 media += [attachment]
 
             else:
-                raise Exception(f"Unknown item type {item['type']} trying to download media for tweet {tweet.id}")
+                raise Exception(
+                    f"Unknown item type {item['type']} trying to download media for tweet {tweet.id}"
+                )
 
         try:
             rt_of = tweet.retweeted_status.id_str
@@ -333,7 +285,7 @@ class InflatedTweet():
         infltweet = cls(
             tweet.id_str,
             tweet.created_at,
-            tweet._json['created_at'],
+            tweet._json["created_at"],
             tweet.full_text,
             tweet_html_body(tweet, False),
             tweet_html_body(tweet, True),
@@ -341,7 +293,7 @@ class InflatedTweet():
             tweet.entities,
             qts,
             rt_of,
-            tweet._json['in_reply_to_status_id_str'],
+            tweet._json["in_reply_to_status_id_str"],
             tweet.user.screen_name,
             tweet.user.name,
             user_pfp,
@@ -356,7 +308,6 @@ class InflatedTweet():
 
 
 class InflatedTweetEncoder(json.JSONEncoder):
-
     def default(self, obj):
         if isinstance(obj, InflatedTweet):
             return obj.__dict__
@@ -372,13 +323,22 @@ class InflatedTweetEncoder(json.JSONEncoder):
 
 
 class InflatedTweetDecoder(json.JSONDecoder):
-
     def __init__(self, *args, **kwargs):
         json.JSONDecoder.__init__(self, object_hook=self.object_hook, *args, **kwargs)
 
     def object_hook(self, obj):
         """Automatically detect the shape of custom objects we have"""
-        infltweet_fields = ["id", "date", "date_original_format", "full_text", "media", "entities", "username", "user_displayname", "user_pfp"]
+        infltweet_fields = [
+            "id",
+            "date",
+            "date_original_format",
+            "full_text",
+            "media",
+            "entities",
+            "username",
+            "user_displayname",
+            "user_pfp",
+        ]
         is_inflated_tweet = all([f in obj for f in infltweet_fields])
         if is_inflated_tweet:
             return InflatedTweet(**obj)
@@ -389,7 +349,6 @@ class InflatedTweetDecoder(json.JSONDecoder):
             return TweetMediaAttachment(**obj)
 
         return obj
-
 
 
 def authenticate(consumer_key: str, consumer_secret: str) -> tweepy.API:
@@ -403,7 +362,7 @@ def get_status_expanded(api: tweepy.API, tweetid: str) -> tweepy.models.Status:
     tweet = api.get_status(
         tweetid,
         include_ext_alt_text=True,
-        tweet_mode='extended',
+        tweet_mode="extended",
     )
     return tweet
 
@@ -411,11 +370,18 @@ def get_status_expanded(api: tweepy.API, tweetid: str) -> tweepy.models.Status:
 def tweetid2json(api: tweepy.API, tweetid: str, filename: str):
     tweet = get_status_expanded(api, tweetid)
     infltweet = InflatedTweet.from_tweet(tweet)
-    with open(filename, 'w') as fp:
+    with open(filename, "w") as fp:
         json.dump(infltweet, fp, cls=InflatedTweetEncoder, indent=2)
 
 
-def tweet2data(api: tweepy.API, tweetid: str = "", tweet: tweepy.models.Status = None, force=False, rlevel=0, max_rlevel=20):
+def tweet2data(
+    api: tweepy.API,
+    tweetid: str = "",
+    tweet: tweepy.models.Status = None,
+    force=False,
+    rlevel=0,
+    max_rlevel=20,
+):
     """Save a tweet to site data
 
     Save its QTs as well.
@@ -440,19 +406,23 @@ def tweet2data(api: tweepy.API, tweetid: str = "", tweet: tweepy.models.Status =
     filename = f"data/twarchive/{tweetid}.json"
 
     if os.path.exists(filename) and not force:
-        logging.info(f"Tweet {tweetid} already exists in site data and force=False, not downloading")
+        logger.info(
+            f"Tweet {tweetid} already exists in site data and force=False, not downloading"
+        )
         return
 
     if rlevel > max_rlevel:
-        logging.warning(f"WARNING! Recursion level of {rlevel}, refusing to download tweet {tweetid}")
+        logger.warning(
+            f"WARNING! Recursion level of {rlevel}, refusing to download tweet {tweetid}"
+        )
         return
 
     if not tweet:
-        logging.info(f"Downloading tweet {tweetid}")
+        logger.info(f"Downloading tweet {tweetid}")
         tweet = get_status_expanded(api, tweetid)
 
     infltweet = InflatedTweet.from_tweet(tweet)
-    with open(filename, 'w') as fp:
+    with open(filename, "w") as fp:
         json.dump(infltweet, fp, cls=InflatedTweetEncoder, indent=2)
     rlevel += 1
 
@@ -467,41 +437,61 @@ def tweet2data(api: tweepy.API, tweetid: str = "", tweet: tweepy.models.Status =
 
     for reltweet in related_tweets:
         try:
-            tweet2data(api, tweetid=reltweet, force=force, rlevel=rlevel, max_rlevel=max_rlevel)
+            tweet2data(
+                api, tweetid=reltweet, force=force, rlevel=rlevel, max_rlevel=max_rlevel
+            )
         except tweepy.errors.NotFound:
             # This appears to mean the tweet (or account) were intentionally deleted
-            logging.warning(f"Could not find tweet with ID {reltweet}")
+            logger.warning(f"Could not find tweet with ID {reltweet}")
         except tweepy.errors.Forbidden as exc:
             # This appears to happen when the account was suspended
-            exc_message = str(exc).replace('\n', ' ')
-            logging.warning(f"Not permitted to access tweet with ID {reltweet}: {exc_message}")
+            exc_message = str(exc).replace("\n", " ")
+            logger.warning(
+                f"Not permitted to access tweet with ID {reltweet}: {exc_message}"
+            )
 
 
-def find_inline_tweets(content='./content') -> typing.List[str]:
+def find_inline_tweets(content="./content") -> typing.List[str]:
     """Find tweets inlined with 'twarchiveTweet' or 'twarchiveThread' shortcodes in site content"""
 
     result = []
 
-    rgcmd = ['rg', '--no-filename', '--no-line-number', '\{\{. twarchiveTweet .[0-9]+(-intentionallyinvalid)?', content]
+    rgcmd = [
+        "rg",
+        "--no-filename",
+        "--no-line-number",
+        "\{\{. twarchiveTweet .[0-9]+(-intentionallyinvalid)?",
+        content,
+    ]
     rg = subprocess.run(rgcmd, capture_output=True)
-    outlines = rg.stdout.decode().strip().split('\n')
+    outlines = rg.stdout.decode().strip().split("\n")
     for line in outlines:
-        m = re.search('{{. twarchiveTweet .(?P<tweetid>[0-9]+(:?-intentionallyinvalid)?)', line)
-        result += [m['tweetid']]
+        m = re.search(
+            "{{. twarchiveTweet .(?P<tweetid>[0-9]+(:?-intentionallyinvalid)?)", line
+        )
+        result += [m["tweetid"]]
 
-    rgcmd = ['rg', '--no-filename', '--no-line-number', '\{\{. twarchiveThread .[0-9]+(-intentionallyinvalid)?', content]
+    rgcmd = [
+        "rg",
+        "--no-filename",
+        "--no-line-number",
+        "\{\{. twarchiveThread .[0-9]+(-intentionallyinvalid)?",
+        content,
+    ]
     rg = subprocess.run(rgcmd, capture_output=True)
-    outlines = rg.stdout.decode().strip().split('\n')
+    outlines = rg.stdout.decode().strip().split("\n")
     for line in outlines:
-        m = re.search('{{. twarchiveThread .(?P<tweetid>[0-9]+(:?-intentionallyinvalid)?)', line)
-        result += [m['tweetid']]
+        m = re.search(
+            "{{. twarchiveThread .(?P<tweetid>[0-9]+(:?-intentionallyinvalid)?)", line
+        )
+        result += [m["tweetid"]]
 
     return set(result)
 
 
 def get_downloaded_tweets(twarchive="./data/twarchive") -> typing.List[str]:
     """Return a list of tweet IDs that have already been downloaded"""
-    return [t.strip(".json") for t in os.listdir('data/twarchive')]
+    return [t.strip(".json") for t in os.listdir("data/twarchive")]
 
 
 def showinlines():
@@ -511,7 +501,9 @@ def showinlines():
         print(f"- {line}")
 
 
-def inline2data(consumer_key: str, consumer_secret: str, max_rlevel: int, force: bool = False):
+def inline2data(
+    consumer_key: str, consumer_secret: str, max_rlevel: int, force: bool = False
+):
     """Save tweets to data that have been inlined
 
     Does not redownload items already saved.
@@ -519,7 +511,7 @@ def inline2data(consumer_key: str, consumer_secret: str, max_rlevel: int, force:
     api = authenticate(consumer_key, consumer_secret)
     for tweetid in find_inline_tweets():
         if tweetid.endswith("-intentionallyinvalid"):
-            logging.info(f"Skipping intentionally invalid tweet id {tweetid}")
+            logger.info(f"Skipping intentionally invalid tweet id {tweetid}")
         else:
             tweet2data(api, tweetid=tweetid, force=force, max_rlevel=max_rlevel)
 
@@ -530,20 +522,28 @@ def data2md():
     for tweet_json in os.listdir("data/twarchive/"):
         with open(f"data/twarchive/{tweet_json}") as tjfp:
             tweet = json.load(tjfp)
-        tweet_date = datetime.datetime.strptime(tweet['date'], "%Y-%m-%dT%H:%M:%S%z")
+        tweet_date = datetime.datetime.strptime(tweet["date"], "%Y-%m-%dT%H:%M:%S%z")
         tweetid = tweet_json.strip("\.json")
         tweet_md_path = f"content/twarchive/{tweetid}.md"
-        mdcontents = textwrap.dedent(f"""\
+        mdcontents = textwrap.dedent(
+            f"""\
             ---
             tweetid: "{tweetid}"
             date: {tweet_date}
             ---
-            """)
-        with open(tweet_md_path, 'w') as tmdfp:
+            """
+        )
+        with open(tweet_md_path, "w") as tmdfp:
             tmdfp.write(mdcontents)
 
 
-def usertweets2data(api: tweepy.API, screen_name: str, max_rlevel: int, force: bool = False, retrieve_all: bool = False):
+def usertweets2data(
+    api: tweepy.API,
+    screen_name: str,
+    max_rlevel: int,
+    force: bool = False,
+    retrieve_all: bool = False,
+):
     """Save all of a user's tweets to data
 
     Arguments
@@ -565,104 +565,29 @@ def usertweets2data(api: tweepy.API, screen_name: str, max_rlevel: int, force: b
     user_tweets = []
     oldest = None
     while True:
-        logging.info(f"Retrieving tweets for @{screen_name} older than {oldest}")
+        logger.info(f"Retrieving tweets for @{screen_name} older than {oldest}")
         new_tweets = api.user_timeline(
-            screen_name=screen_name, count=max_tweets_per_call, tweet_mode="extended", max_id=oldest,
+            screen_name=screen_name,
+            count=max_tweets_per_call,
+            tweet_mode="extended",
+            max_id=oldest,
         )
         if not new_tweets:
             break
 
         if force:
-            oldest = str(new_tweets[-1].id -1)
+            oldest = str(new_tweets[-1].id - 1)
             continue
 
         unseen_tweets = [t for t in new_tweets if t.id_str not in downloaded_tweets]
         user_tweets.extend(unseen_tweets)
         if not retrieve_all and len(unseen_tweets) < len(new_tweets):
             break
-        oldest = str(new_tweets[-1].id -1)
+        oldest = str(new_tweets[-1].id - 1)
 
-    logging.info(f"Finished retrieving tweets for @{screen_name}, got {len(user_tweets)} tweets (force={force}, retrieve_all={retrieve_all})")
+    logger.info(
+        f"Finished retrieving tweets for @{screen_name}, got {len(user_tweets)} tweets (force={force}, retrieve_all={retrieve_all})"
+    )
 
     for tweet in user_tweets:
         tweet2data(api, tweet=tweet, force=force, max_rlevel=max_rlevel)
-
-
-def parseargs(arguments: typing.List[str]):
-    """Parse program arguments"""
-    parser = argparse.ArgumentParser(description="Manage tweets")
-    subparsers = parser.add_subparsers(dest="action", required=True)
-    parser.add_argument(
-        "--debug",
-        "-d",
-        action="store_true",
-        help="Launch a debugger on unhandled exception",
-    )
-
-    twitter_opts = argparse.ArgumentParser(add_help=False)
-    # Defaults are official keys for iOS app
-    # https://gist.github.com/shobotch/5160017
-    twitter_opts.add_argument("--consumer-key", default="IQKbtAYlXLripLGPWd0HUA", help="Twitter consumer key")
-    twitter_opts.add_argument("--consumer-secret", default="GgDYlkSvaPxGxC4X8liwpUoqKwwr3lCADbz8A7ADU", help="Twitter consumer secret")
-    twitter_opts.add_argument("--max-recurse", type=int, default=20, help="How many parent/QT tweets should we find")
-    twitter_opts.add_argument("--force", action="store_true", help="Redownload data that has already been downloaded")
-
-    sub_tweet2json = subparsers.add_parser("tweet2json", parents=[twitter_opts], help="Download JSON for a tweet, including image data")
-    sub_tweet2json.add_argument("tweetid", help="ID of a tweet to download")
-    sub_tweet2json.add_argument("filename", help="Path to save JSON to")
-
-    sub_tweet2data = subparsers.add_parser("tweet2data", parents=[twitter_opts], help="Download JSON for a tweet, and store it under './data/twarchive/$tweetId.json', including any QTs or parents")
-    sub_tweet2data.add_argument("tweetid", help="ID of a tweet to download")
-
-    sub_showinlines = subparsers.add_parser("showinlines", help="Show tweets inlined with the 'twarchiveTweet' shortcode")
-
-    sub_inline2data = subparsers.add_parser("inline2data", parents=[twitter_opts], help="Download JSON for all tweets that are inlined via the 'twarchiveTweet' shortcode.")
-
-    sub_data2md = subparsers.add_parser("data2md", help="Create a page under content/twarchive/ for every downloaded tweet")
-
-    sub_examine = subparsers.add_parser("examine", parents=[twitter_opts], help="Get the response from Twitter and launch the debugger")
-    sub_examine.add_argument("tweetid", help="ID of the tweet to examine")
-
-    sub_user2data = subparsers.add_parser("user2data", parents=[twitter_opts], help="Retrieve a user's full timeline from Twitter and store in site data")
-    sub_user2data.add_argument("username", help="Twitter username")
-    sub_user2data.add_argument("--retrieve-all", action="store_true", help="Keep retrieving tweets from this user even if we retrieve a tweet we already have. Has no effect if --force is True, but if --force is False, it will download older tweets without redownloading media/QTs from newer ones it already has.")
-
-    parsed = parser.parse_args(arguments)
-    return parsed
-
-
-def main(*arguments):
-    """Main program"""
-    parsed = parseargs(arguments[1:])
-    if parsed.debug:
-        sys.excepthook = idb_excepthook
-
-    if parsed.action == "tweet2json":
-        api = authenticate(parsed.consumer_key, parsed.consumer_secret)
-        tweetid2json(api, parsed.tweetid, parsed.filename)
-    elif parsed.action == "tweet2data":
-        api = authenticate(parsed.consumer_key, parsed.consumer_secret)
-        tweet2data(api, tweetid=parsed.tweetid, force=parsed.force, max_rlevel=parsed.max_recurse)
-        data2md()
-    elif parsed.action == "showinlines":
-        showinlines()
-    elif parsed.action == "inline2data":
-        inline2data(parsed.consumer_key, parsed.consumer_secret, force=parsed.force, max_rlevel=parsed.max_recurse)
-        data2md()
-    elif parsed.action == "data2md":
-        data2md()
-    elif parsed.action == "examine":
-        api = authenticate(parsed.consumer_key, parsed.consumer_secret)
-        tweet = get_status_expanded(api, parsed.tweetid)
-        pdb.set_trace()
-    elif parsed.action == "user2data":
-        api = authenticate(parsed.consumer_key, parsed.consumer_secret)
-        usertweets2data(api, parsed.username, max_rlevel=parsed.max_recurse, force=parsed.force, retrieve_all=parsed.retrieve_all)
-        data2md()
-    else:
-        raise Exception(f"Unknown action: {parsed.action}")
-
-
-if __name__ == "__main__":
-    exitcode = broken_pipe_handler(main, *sys.argv)
-    sys.exit(exitcode)
