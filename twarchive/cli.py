@@ -56,6 +56,11 @@ def parseargs():
     )
 
     sub_version = subparsers.add_parser("version", help="Show program version")
+    sub_version.add_argument(
+        "--quiet",
+        action="store_true",
+        help="Show just the version (used in development)",
+    )
 
     sub_tweet2json = subparsers.add_parser(
         "tweet2json",
@@ -117,7 +122,10 @@ def main():
         sys.excepthook = idb_excepthook
 
     if parsed.action == "version":
-        print(f"{parser.prog} version {version.__version__}")
+        if parsed.quiet:
+            print(version.__version__)
+        else:
+            print(f"{parser.prog} version {version.__version__}")
         return 0
     elif parsed.action == "tweet2json":
         api = implementation.authenticate(parsed.consumer_key, parsed.consumer_secret)
