@@ -7,21 +7,32 @@ and remain accessible even if they are deleted on Twitter,
 the user gets suspended or deletes their account,
 etc.
 
-Tweets archived this way use no Twitter styles or JavaScript.
+Tweets archived this way use no Twitter styles or Twitter JavaScript
+(but (unfortunately) JavaScript is required to get good UX for displaying them in an iframe).
 
 ## How it works
 
-You run `scripts/twarchive` to download tweets you're interested in.
-This saves not just the tweet,
+After installing the companion Python script:
+
+```sh
+pip install --user --upgrade twarchive
+```
+
+Run the `twarchive` command to download tweets you're interested in.
+It saves not just the tweet,
 but any attached media,
 profile pictures,
 retweeted or quote-tweeted tweets,
 and previous tweets in the reply chain.
 
-Tweets are saved to `data/twarchive/`,
-and Markdown pages are created under `content/archive/`.
-The Markdown pages are empty of content, but have a `tweetid` in their front matter,
-which `twarchive` uses to generate a separate page for each tweet.
+Tweets are saved to `data/twarchive/` as JSON.
+Additionally, Markdown pages are created under `content/twarchive/`,
+which creates the `twarchive` section in Hugo.
+These Markdown pages are empty of content,
+but have a `tweetid` in their front matter,
+which the `twarchive` theme uses to generate two HTML pages for each tweet:
+`index.html` for end-users to navigate to,
+and `index.tweet.html` which contains the actual tweet page and is intended to be displayed in an iframe.
 
 Python and the `tweepy` package are required only to run the `twarchive` script,
 but are not needed for Hugo to build the site after tweet data is downloaded.
@@ -148,7 +159,7 @@ You can see its source code, including a very barebones theme,
 ## The `twarchive` command
 
 ```
-> scripts/twarchive -h
+> twarchive -h
 usage: tweet [-h] [--debug] {tweet2json,tweet2data,showinlines,inline2data,data2md,examine,user2data} ...
 
 Manage tweets
@@ -175,4 +186,4 @@ optional arguments:
 
 ## Limitations
 
-- `twarchive` uses v1.1 of the API, not v2. This means no support for polls, but easy to get started.
+- `twarchive` uses v1.1 of the API, not v2. This means we do not support polls, but you can run the script out of the box without providing any credentials.
