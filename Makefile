@@ -35,3 +35,7 @@ pybuild: $(DIST_WHEEL) $(DIST_TARGZ) ## Build Python packages for uploading to P
 twineupload: venv $(DIST_WHEEL) $(DIST_TARGZ) ## Upload Python packages to PyPi
 	venv/bin/twine check $(DIST_WHEEL) $(DIST_TARGZ)
 	venv/bin/twine upload $(DIST_WHEEL) $(DIST_TARGZ)
+
+.PHONY: tests
+tests: venv
+	venv/bin/python -m unittest discover

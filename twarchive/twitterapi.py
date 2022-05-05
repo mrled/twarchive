@@ -40,6 +40,7 @@ def tweet2data(
     force=False,
     rlevel=0,
     max_rlevel=20,
+    hugodata="data",
 ):
     """Save a tweet to site data
 
@@ -54,6 +55,7 @@ def tweet2data(
                             This function calls itself for each QT, incrementing this value each time.
                             At some level we will stop, in case we are in some pathological case.
         max_rlevel:         The maximum number of QT or parent tweets to retrieve.
+        hugodata:           Path to a Hugo data/ directory
     """
 
     if (tweetid and tweet) or (not tweetid and not tweet):
@@ -62,7 +64,7 @@ def tweet2data(
     if not tweetid:
         tweetid = tweet.id_str
 
-    filename = f"data/twarchive/{tweetid}.json"
+    filename = f"{hugodata}/twarchive/{tweetid}.json"
 
     if os.path.exists(filename) and not force:
         logger.info(

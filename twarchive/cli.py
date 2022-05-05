@@ -1,4 +1,5 @@
 import argparse
+import os
 import pdb
 import sys
 import traceback
@@ -8,6 +9,7 @@ import tweepy
 from twarchive import hugo
 from twarchive import logger
 from twarchive import twitterapi
+from twarchive import twitterarchive
 from twarchive import version
 
 
@@ -129,6 +131,12 @@ def parseargs():
         help="Keep retrieving tweets from this user even if we retrieve a tweet we already have. Has no effect if --force is True, but if --force is False, it will download older tweets without redownloading media/QTs from newer ones it already has.",
     )
 
+    sub_archive2data = subparsers.add_parser(
+        "archive2data",
+        help="Parse a Twitter archive extracted to twitter-archives/<name> and save the result to the Hugo data dir",
+    )
+    sub_archive2data.add_argument("archive", help="Name of the archive to parse")
+
     parsed = parser.parse_args()
     return parser, parsed
 
@@ -183,5 +191,10 @@ def main():
             retrieve_all=parsed.retrieve_all,
         )
         twitterapi.data2md()
+    elif parsed.action == "archive2data":
+        archive = twitterarchive.TwitterArchive.frompath(
+            os.path.join("twitter-archives", parsed.archive)
+        )
+        twitterarchive.archive2data(archive)
     else:
         raise Exception(f"Unknown action: {parsed.action}")

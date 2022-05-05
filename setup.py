@@ -30,6 +30,11 @@ setuptools.setup(
     python_requires=">=3.9",
     include_package_data=True,
     install_requires=["tweepy"],
+    setup_requires=[
+        "black",
+        "mypy",
+        "pytest",
+    ],
     entry_points={
         "console_scripts": ["twarchive=twarchive.cli:main"],
     },
