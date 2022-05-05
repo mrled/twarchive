@@ -2,7 +2,6 @@ import argparse
 import pdb
 import sys
 import traceback
-import typing
 
 from twarchive import implementation, version
 
