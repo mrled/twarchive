@@ -71,13 +71,11 @@ def find_archives(archives="twiter-archives") -> typing.List[str]:
 def archive2data(archive: TwitterArchive, hugodata="data"):
     """Parse all the tweets in an archive and save them as individual files to Hugo"""
 
-    with open(archive.profilejs) as pfp:
-        parsed_profile = json.load(pfp)
-    profile = parsed_profile["window.YTD.profile.part0"][0]["profile"]
+    parsed_profile = parse_twitter_window_YTD_bullshit(archive.profilejs)
+    profile = parsed_profile[0]["profile"]
 
-    with open(archive.tweetjs) as tfp:
-        parsed_tweets = json.load(tfp)
-    tweets = parsed_tweets["window.YTD.tweet.part0"]
+    parsed_tweets = parse_twitter_window_YTD_bullshit(archive.tweetjs)
+    tweets = parsed_tweets
 
     for tweet in tweets:
-        print(tweet.full_text)
+        print(tweet["tweet"]["full_text"])
