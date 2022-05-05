@@ -187,3 +187,10 @@ optional arguments:
 ## Limitations
 
 - `twarchive` uses v1.1 of the API, not v2. This means we do not support polls, but you can run the script out of the box without providing any credentials.
+
+## Todo
+
+- Rename `twarchiveRoot.scss`; it is only used internally and the name should reflect that.
+- Support Twitter archive downloads too
+  - Don't ever bother redownloading tweets that are already in a Twitter archive
+  - But do download tweets referenced from a Twitter archive (RTs and thread parents)
