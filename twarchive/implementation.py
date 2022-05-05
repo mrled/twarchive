@@ -173,6 +173,8 @@ class InflatedTweet:
         user_displayname: str,
         user_pfp: bytes,
         retrieved_date: datetime.datetime,
+        replyto_tweetid: str,
+        replyto_username: str,
     ):
         self.id = id
 
@@ -199,6 +201,9 @@ class InflatedTweet:
             self.user_pfp = user_pfp
 
         self.retrieved_date = retrieved_date
+
+        self.replyto_tweetid = replyto_tweetid
+        self.replyto_username = replyto_username
 
     @classmethod
     def from_tweet(cls, tweet: tweepy.models.Status):
@@ -282,6 +287,12 @@ class InflatedTweet:
 
         user_pfp = requests.get(tweet.user.profile_image_url).content
 
+        replyto_tweetid = None
+        replyto_username = None
+        if hasattr(tweet, "in_reply_to_status_id_str"):
+            replyto_tweetid = tweet.in_reply_to_status_id_str
+            replyto_username = tweet._json["in_reply_to_screen_name"]
+
         infltweet = cls(
             tweet.id_str,
             tweet.created_at,
@@ -298,6 +309,8 @@ class InflatedTweet:
             tweet.user.name,
             user_pfp,
             datetime.datetime.utcnow(),
+            replyto_tweetid,
+            replyto_username,
         )
 
         return infltweet

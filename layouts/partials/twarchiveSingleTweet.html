@@ -42,6 +42,22 @@
     </p>
   </div>
   {{- end -}}
+  {{- if and $tweet.replyto_username $tweet.replyto_tweetid -}}
+  {{- $replytoTwitterUri := printf "https://twitter.com/%s/status/%s" $tweet.replyto_username $tweet.replyto_tweetid -}}
+  {{- $replytoUserUri := printf "https://twitter.com/%s" $tweet.replyto_username -}}
+  <div class="twarchive-reply-banner">
+    <p>In reply to a tweet
+      {{- if index .ctx.Site.Data.twarchive $tweet.replyto_tweetid -}}
+      {{/* TODO: is there a better way to get this ref ? */}}
+      (<a href='{{ ref .ctx (printf "/twarchive/%s" $tweet.replyto_tweetid) }}'>local archive</a>
+      {{- else -}}
+      (no local archive available
+      {{- end -}}
+      , <a href="{{ $replytoTwitterUri }}">Twitter</a>)
+      by <a href="{{ $replytoUserUri }}">@{{ $tweet.replyto_username }}</a>
+    </p>
+  </div>
+  {{- end -}}
   <button class="twarchive-about-button" onclick="twarchiveToggleTweetExplanation(this, '{{ $tweet.id }}')">
     ?
   </button>
