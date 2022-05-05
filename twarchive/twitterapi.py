@@ -1,18 +1,11 @@
-"""Subcommands and API calls
+"""Functionality that involves talking to the Twitter API"""
 
-This needs a better name but I don't have one.
-"""
-
-import datetime
 import json
 import os
-import re
-import subprocess
-import textwrap
-import typing
 
 import tweepy
 
+from twarchive import hugo
 from twarchive import inflatedtweet
 from twarchive import logger
 
@@ -117,92 +110,6 @@ def tweet2data(
             )
 
 
-def find_inline_tweets(content="./content") -> typing.List[str]:
-    """Find tweets inlined with 'twarchiveTweet' or 'twarchiveThread' shortcodes in site content"""
-
-    result = []
-
-    rgcmd = [
-        "rg",
-        "--no-filename",
-        "--no-line-number",
-        "\{\{. twarchiveTweet .[0-9]+(-intentionallyinvalid)?",
-        content,
-    ]
-    rg = subprocess.run(rgcmd, capture_output=True)
-    outlines = rg.stdout.decode().strip().split("\n")
-    for line in outlines:
-        m = re.search(
-            "{{. twarchiveTweet .(?P<tweetid>[0-9]+(:?-intentionallyinvalid)?)", line
-        )
-        result += [m["tweetid"]]
-
-    rgcmd = [
-        "rg",
-        "--no-filename",
-        "--no-line-number",
-        "\{\{. twarchiveThread .[0-9]+(-intentionallyinvalid)?",
-        content,
-    ]
-    rg = subprocess.run(rgcmd, capture_output=True)
-    outlines = rg.stdout.decode().strip().split("\n")
-    for line in outlines:
-        m = re.search(
-            "{{. twarchiveThread .(?P<tweetid>[0-9]+(:?-intentionallyinvalid)?)", line
-        )
-        result += [m["tweetid"]]
-
-    return set(result)
-
-
-def get_downloaded_tweets(twarchive="./data/twarchive") -> typing.List[str]:
-    """Return a list of tweet IDs that have already been downloaded"""
-    return [t.strip(".json") for t in os.listdir("data/twarchive")]
-
-
-def showinlines():
-    inlines = find_inline_tweets()
-    print("Note: these tweets may QT other tweets, which are not listed here")
-    for line in inlines:
-        print(f"- {line}")
-
-
-def inline2data(
-    consumer_key: str, consumer_secret: str, max_rlevel: int, force: bool = False
-):
-    """Save tweets to data that have been inlined
-
-    Does not redownload items already saved.
-    """
-    api = authenticate(consumer_key, consumer_secret)
-    for tweetid in find_inline_tweets():
-        if tweetid.endswith("-intentionallyinvalid"):
-            logger.info(f"Skipping intentionally invalid tweet id {tweetid}")
-        else:
-            tweet2data(api, tweetid=tweetid, force=force, max_rlevel=max_rlevel)
-
-
-def data2md():
-    """For tweets that have been downloaded to the data directory, make a page for them in the content"""
-    os.makedirs("content/twarchive", exist_ok=True)
-    for tweet_json in os.listdir("data/twarchive/"):
-        with open(f"data/twarchive/{tweet_json}") as tjfp:
-            tweet = json.load(tjfp)
-        tweet_date = datetime.datetime.strptime(tweet["date"], "%Y-%m-%dT%H:%M:%S%z")
-        tweetid = tweet_json.strip("\.json")
-        tweet_md_path = f"content/twarchive/{tweetid}.md"
-        mdcontents = textwrap.dedent(
-            f"""\
-            ---
-            tweetid: "{tweetid}"
-            date: {tweet_date}
-            ---
-            """
-        )
-        with open(tweet_md_path, "w") as tmdfp:
-            tmdfp.write(mdcontents)
-
-
 def usertweets2data(
     api: tweepy.API,
     screen_name: str,
@@ -227,7 +134,7 @@ def usertweets2data(
     # Twitter API limit
     max_tweets_per_call = 200
 
-    downloaded_tweets = get_downloaded_tweets()
+    downloaded_tweets = hugo.get_downloaded_tweets()
     user_tweets = []
     oldest = None
     while True:

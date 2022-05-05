@@ -3,7 +3,12 @@ import pdb
 import sys
 import traceback
 
-from twarchive import implementation, version
+import tweepy
+
+from twarchive import hugo
+from twarchive import logger
+from twarchive import twitterapi
+from twarchive import version
 
 
 def idb_excepthook(type, value, tb):
@@ -18,6 +23,20 @@ def idb_excepthook(type, value, tb):
         traceback.print_exception(type, value, tb)
         print
         pdb.pm()
+
+
+def inline2data(api: tweepy.API, max_rlevel: int, force: bool = False):
+    """Save tweets to data that have been inlined
+
+    Does not redownload items already saved.
+    """
+    for tweetid in hugo.find_inline_tweets():
+        if tweetid.endswith("-intentionallyinvalid"):
+            logger.info(f"Skipping intentionally invalid tweet id {tweetid}")
+        else:
+            twitterapi.tweet2data(
+                api, tweetid=tweetid, force=force, max_rlevel=max_rlevel
+            )
 
 
 def parseargs():
@@ -127,42 +146,42 @@ def main():
             print(f"{parser.prog} version {version.__version__}")
         return 0
     elif parsed.action == "tweet2json":
-        api = implementation.authenticate(parsed.consumer_key, parsed.consumer_secret)
-        implementation.tweetid2json(api, parsed.tweetid, parsed.filename)
+        api = twitterapi.authenticate(parsed.consumer_key, parsed.consumer_secret)
+        twitterapi.tweetid2json(api, parsed.tweetid, parsed.filename)
     elif parsed.action == "tweet2data":
-        api = implementation.authenticate(parsed.consumer_key, parsed.consumer_secret)
-        implementation.tweet2data(
+        api = twitterapi.authenticate(parsed.consumer_key, parsed.consumer_secret)
+        twitterapi.tweet2data(
             api,
             tweetid=parsed.tweetid,
             force=parsed.force,
             max_rlevel=parsed.max_recurse,
         )
-        implementation.data2md()
+        hugo.data2md()
     elif parsed.action == "showinlines":
-        implementation.showinlines()
+        hugo.showinlines()
     elif parsed.action == "inline2data":
-        implementation.inline2data(
-            parsed.consumer_key,
-            parsed.consumer_secret,
+        api = twitterapi.authenticate(parsed.consumer_key, parsed.consumer_secret)
+        twitterapi.inline2data(
+            api,
             force=parsed.force,
             max_rlevel=parsed.max_recurse,
         )
-        implementation.data2md()
+        twitterapi.data2md()
     elif parsed.action == "data2md":
-        implementation.data2md()
+        hugo.data2md()
     elif parsed.action == "examine":
-        api = implementation.authenticate(parsed.consumer_key, parsed.consumer_secret)
-        tweet = implementation.get_status_expanded(api, parsed.tweetid)
+        api = twitterapi.authenticate(parsed.consumer_key, parsed.consumer_secret)
+        tweet = twitterapi.get_status_expanded(api, parsed.tweetid)
         pdb.set_trace()
     elif parsed.action == "user2data":
-        api = implementation.authenticate(parsed.consumer_key, parsed.consumer_secret)
-        implementation.usertweets2data(
+        api = twitterapi.authenticate(parsed.consumer_key, parsed.consumer_secret)
+        twitterapi.usertweets2data(
             api,
             parsed.username,
             max_rlevel=parsed.max_recurse,
             force=parsed.force,
             retrieve_all=parsed.retrieve_all,
         )
-        implementation.data2md()
+        twitterapi.data2md()
     else:
         raise Exception(f"Unknown action: {parsed.action}")
