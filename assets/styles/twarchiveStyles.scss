@@ -21,8 +21,50 @@ iframe.twarchive-html-iframe {
   width: 25rem;
 }
 
+li.page-item {
+  display: inline;
+}
+
+.twarchive-paginated-abbreviated-tweet-table {
+  .twarchive-paginated-abbreviated-tweet-table-row-date-username {
+    .twarchive-paginated-abbreviated-tweet-table-date,
+    .twarchive-paginated-abbreviated-tweet-table-username
+    {
+      padding-top: 0.5em;
+      font-size: 14px;
+    }
+  }
+  .twarchive-paginated-abbreviated-tweet-table-row-text {
+    .twarchive-paginated-abbreviated-tweet-table-text {
+      overflow-x: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      display: inline-block;
+      width: 30em;
+      border-bottom: 1px solid var(--twarchive-twitter-black);
+      padding-bottom: 1em;
+      font-size: 12px;
+      color: var(--twarchive-twitter-darkgray);
+    }
+  }
+}
+
 @media (max-width: 400px) {
   iframe.twarchive-html-iframe {
     width: 20rem;
+  }
+  .twarchive-paginated-abbreviated-tweet-table {
+    .twarchive-paginated-abbreviated-tweet-table-row-date-username {
+      .twarchive-paginated-abbreviated-tweet-table-date,
+      .twarchive-paginated-abbreviated-tweet-table-username
+      {
+        font-size: 12px;
+      }
+    }
+    .twarchive-paginated-abbreviated-tweet-table-row-text {
+      .twarchive-paginated-abbreviated-tweet-table-text {
+        font-size: 10px;
+      }
+    }
   }
 }

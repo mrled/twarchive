@@ -2,28 +2,24 @@
     * You probably want to override this with one in your site which uses your site's CSS, partials, etc.
     */}}
 <html>
-<head>
-  <title>Tweet archive</title>
-</head>
+{{ partial "twarchiveDefaultHead.html" . }}
 <body>
-<section id="content">
+<section class="twarchive-content">
 
   {{- .Content -}}
 
   <p>Every tweet archived on this site</p>
 
-  <ul class="posts_listing">
-    {{- range .Data.Pages.ByPublishDate.Reverse -}}
-    {{- $tweet := index .Site.Data.twarchive .Params.tweetid -}}
-    <li>
-      <a href="{{ .Permalink }}">
-        <time>{{ .Date.Format (.Site.Params.dateform | default "January 2006") }}</time>:
-        @{{ $tweet.username }}
-        {{ .Params.tweetid -}}
-      </a>
-    </li>
-    {{ end }}
-  </ul>
+  {{/*- partial "twarchivePaginatedSimpleTweetList.html" . -*/}}
+  {{- partial "twarchivePaginatedAbbreviatedTweetTable.html" . -}}
+
+  {{/** Warning: this must come AFTER your .Paginator or .Paginate call.
+      * (And .Paginator is called in twarchivePaginated* partials.)
+      * If it comes first, you will not be able to set the per-page count.
+      * <https://discourse.gohugo.io/t/cant-override-paginator-global-page-size/33829>
+      */}}
+  {{ template "_internal/pagination.html" . }}
+
 </section>
 </body>
 </html>

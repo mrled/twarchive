@@ -4,11 +4,9 @@
 {{- $tweet := index .Site.Data.twarchive .Params.tweetid -}}
 {{- $tweetDate := $tweet.date | time }}
 <html>
-<head>
-  <title>Tweet archive</title>
-</head>
+{{ partial "twarchiveDefaultHead.html" . }}
 <body>
-<section id="content" class="single-tweet">
+<section class="twarchive-content">
   <p><a href='{{ ref . "/twarchive" }}'>About archived tweets</a></p>
   <h1 id="single-tweet-page-h1">
     Tweet from @{{ $tweet.username}} on {{ $tweetDate.Format .Site.Params.dateform }}

@@ -1,0 +1,14 @@
+{{/** A simple list of tweets containing username and tweet id
+    */}}
+<ul class="twarchive-paginated-simple-tweet-list">
+  {{- range .Data.Pages.ByPublishDate.Reverse -}}
+  {{- $tweet := index .Site.Data.twarchive .Params.tweetid -}}
+  <li>
+    <a href="{{ .Permalink }}">
+      <time>{{ .Date.Format (.Site.Params.dateform | default "January 2006") }}</time>:
+      @{{ $tweet.username }}
+      {{ .Params.tweetid -}}
+    </a>
+  </li>
+  {{ end }}
+</ul>

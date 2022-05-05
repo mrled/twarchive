@@ -1,0 +1,25 @@
+{{/** A list of tweets in a table.
+    *
+    * Contains an abbreviated body for each tweet.
+    * Does not embed tweet iframes.
+    * Faster for large pages.
+    */}}
+
+{{- $perPage := index .Site.Params "TwarchiveSectionItemsPerPage" -}}
+{{- $paginator := .Paginator $perPage -}}
+
+<table class="twarchive-paginated-abbreviated-tweet-table">
+  {{- range $paginator.Pages -}}
+  {{- $tweet := index .Site.Data.twarchive .Params.tweetid -}}
+  <tr class="twarchive-paginated-abbreviated-tweet-table-row-date-username">
+    <td class="twarchive-paginated-abbreviated-tweet-table-date">
+      <a href="{{ .Permalink }}"><time>{{ .Date.Format .Site.Params.dateform }}</time></a>
+    </td>
+    <td class="twarchive-paginated-abbreviated-tweet-table-username">@{{ $tweet.username }}</td>
+    </a>
+  </tr>
+  <tr class="twarchive-paginated-abbreviated-tweet-table-row-text">
+    <td colspan="2"><p class="twarchive-paginated-abbreviated-tweet-table-text">{{ $tweet.full_text }}</p></td>
+  </tr>
+  {{- end -}}
+</table>

@@ -1,0 +1,13 @@
+/* twarchiveDefaultStyles.scss
+ *
+ * Included for an OK out of the box experience without requiring customization.
+ * Our section.html and single.html layouts reference this,
+ * but most sites will probably not need it.
+ */
+
+body {
+  font-family: sans-serif;
+  margin: 2em;
+  background-color: var(--twarchive-body-bg-color);
+  color: var(--twarchive-body-fg-color);
+}
