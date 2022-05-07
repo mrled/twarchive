@@ -29,17 +29,19 @@ def idb_excepthook(type, value, tb):
         pdb.pm()
 
 
-def inline2data(api: tweepy.API, max_rlevel: int, force: bool = False):
+def inline2data(
+    site: hugo.HugoSite, api: tweepy.API, max_rlevel: int, force: bool = False
+):
     """Save tweets to data that have been inlined
 
     Does not redownload items already saved.
     """
-    for tweetid in hugo.find_inline_tweets():
+    for tweetid in hugo.find_inline_tweets(site):
         if tweetid.endswith("-intentionallyinvalid"):
             logger.info(f"Skipping intentionally invalid tweet id {tweetid}")
         else:
             twitterapi.tweet2data(
-                api, tweetid=tweetid, force=force, max_rlevel=max_rlevel
+                site, api, tweetid=tweetid, force=force, max_rlevel=max_rlevel
             )
 
 
@@ -78,6 +80,14 @@ def parseargs():
         help="Redownload data that has already been downloaded",
     )
 
+    ## Options related to a Hugo site
+    hugo_opts = argparse.ArgumentParser(add_help=False)
+    hugo_opts.add_argument(
+        "--hugo-site-base",
+        default=".",
+        help="Path to a Hugo site. Defaults to the $PWD.",
+    )
+
     ## Subcommand: version
     sub_version = subparsers.add_parser("version", help="Show program version")
     sub_version.add_argument(
@@ -108,13 +118,14 @@ def parseargs():
     # which is useful when saving the resulting JSON to git for diffing etc
     sub_internals_sub_json_load_dump_tweets = sub_internals_subparsers.add_parser(
         "json-load-dump-tweets",
+        parents=[hugo_opts],
         help="Use our custom JSON en/de-coders to parse JSON of every tweet saved to data/twarchive/*.json, and save it back out.",
     )
 
     ## Subcommand: tweet2json
     sub_tweet2json = subparsers.add_parser(
         "tweet2json",
-        parents=[twitter_opts],
+        parents=[twitter_opts, hugo_opts],
         help="Download JSON for a tweet, including image data",
     )
     sub_tweet2json.add_argument("tweetid", help="ID of a tweet to download")
@@ -123,33 +134,36 @@ def parseargs():
     ## Subcommand: tweet2data
     sub_tweet2data = subparsers.add_parser(
         "tweet2data",
-        parents=[twitter_opts],
+        parents=[twitter_opts, hugo_opts],
         help="Download JSON for a tweet, and store it under './data/twarchive/$tweetId.json', including any QTs or parents",
     )
     sub_tweet2data.add_argument("tweetid", help="ID of a tweet to download")
 
     ## Subcommand: showinlines
     sub_showinlines = subparsers.add_parser(
-        "showinlines", help="Show tweets inlined with the 'twarchiveTweet' shortcode"
+        "showinlines",
+        parents=[hugo_opts],
+        help="Show tweets inlined with the 'twarchiveTweet' shortcode",
     )
 
     ## Subcommand: inline2data
     sub_inline2data = subparsers.add_parser(
         "inline2data",
-        parents=[twitter_opts],
+        parents=[twitter_opts, hugo_opts],
         help="Download JSON for all tweets that are inlined via the 'twarchiveTweet' shortcode.",
     )
 
     ## Subcommand: data2md
     sub_data2md = subparsers.add_parser(
         "data2md",
+        parents=[hugo_opts],
         help="Create a page under content/twarchive/ for every downloaded tweet",
     )
 
     ## Subcommand: user2data
     sub_user2data = subparsers.add_parser(
         "user2data",
-        parents=[twitter_opts],
+        parents=[twitter_opts, hugo_opts],
         help="Retrieve a user's full timeline from Twitter and store in site data",
     )
     sub_user2data.add_argument("username", help="Twitter username")
@@ -162,7 +176,7 @@ def parseargs():
     ## Subcommand: archive2data
     sub_archive2data = subparsers.add_parser(
         "archive2data",
-        parents=[twitter_opts],
+        parents=[twitter_opts, hugo_opts],
         help="Parse a Twitter archive extracted to twitter-archives/<name> and save the result to the Hugo data dir",
     )
     sub_archive2data.add_argument(
@@ -192,71 +206,94 @@ def main():
         else:
             print(f"{parser.prog} version {version.__version__}")
         return 0
+
     elif parsed.action == "internals":
         if parsed.internalsaction == "examine":
             api = twitterapi.authenticate(parsed.consumer_key, parsed.consumer_secret)
             tweet = twitterapi.get_status_expanded(api, parsed.tweetid)
             pdb.set_trace()
         elif parsed.internalsaction == "json-load-dump-tweets":
-            for tweetjson in os.listdir("data/twarchive"):
-                tweetjson_path = os.path.join("data/twarchive", tweetjson)
+            site = hugo.HugoSite(parsed.hugo_site_base)
+            for tweetjson in os.listdir(site.data_twarchive):
+                tweetjson_path = os.path.join(site.data_twarchive, tweetjson)
                 with open(tweetjson_path) as tjfp:
                     infltweet = InflatedTweet.jload(tjfp)
                 with open(tweetjson_path, "w") as tjfp:
                     infltweet.jdump(tjfp)
+
     elif parsed.action == "tweet2json":
         api = twitterapi.authenticate(parsed.consumer_key, parsed.consumer_secret)
         twitterapi.tweetid2json(api, parsed.tweetid, parsed.filename)
+
     elif parsed.action == "tweet2data":
+        site = hugo.HugoSite(parsed.hugo_site_base)
         api = twitterapi.authenticate(parsed.consumer_key, parsed.consumer_secret)
         twitterapi.tweet2data(
+            site,
             api,
             tweetid=parsed.tweetid,
             force=parsed.force,
             max_rlevel=parsed.max_recurse,
         )
-        hugo.data2md()
+        hugo.data2md(site)
+
     elif parsed.action == "showinlines":
-        hugo.showinlines()
+        site = hugo.HugoSite(parsed.hugo_site_base)
+        hugo.showinlines(site)
+
     elif parsed.action == "inline2data":
+        site = hugo.HugoSite(parsed.hugo_site_base)
         api = twitterapi.authenticate(parsed.consumer_key, parsed.consumer_secret)
         twitterapi.inline2data(
+            site,
             api,
             force=parsed.force,
             max_rlevel=parsed.max_recurse,
         )
-        twitterapi.data2md()
+        twitterapi.data2md(site)
+
     elif parsed.action == "data2md":
-        hugo.data2md()
+        site = hugo.HugoSite(parsed.hugo_site_base)
+        hugo.data2md(site)
+
     elif parsed.action == "user2data":
+        site = hugo.HugoSite(parsed.hugo_site_base)
         api = twitterapi.authenticate(parsed.consumer_key, parsed.consumer_secret)
         twitterapi.usertweets2data(
+            site,
             api,
             parsed.username,
             max_rlevel=parsed.max_recurse,
             force=parsed.force,
             retrieve_all=parsed.retrieve_all,
         )
-        twitterapi.data2md()
+        twitterapi.data2md(site)
+
     elif parsed.action == "archive2data":
+        site = hugo.HugoSite(parsed.hugo_site_base)
+
         if parsed.archive:
             archives = [
                 twitterarchive.TwitterArchive.frompath(
-                    os.path.join("twitter-archives", parsed.archive)
+                    os.path.join(site.twitter_archives, parsed.archive)
                 )
             ]
         else:
-            archives = twitterarchive.find_archives()
+            archives = twitterarchive.find_archives(site)
+
         if parsed.no_api:
             api = None
         else:
             api = twitterapi.authenticate(parsed.consumer_key, parsed.consumer_secret)
+
         for archive in archives:
             twitterarchive.archive2data(
+                site,
                 archive,
                 api=api,
                 max_recurse=parsed.max_recurse,
                 api_force_download=parsed.force,
             )
+
     else:
         raise Exception(f"Unknown action: {parsed.action}")

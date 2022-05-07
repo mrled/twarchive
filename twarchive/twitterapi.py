@@ -1,6 +1,5 @@
 """Functionality that involves talking to the Twitter API"""
 
-import json
 import os
 
 import tweepy
@@ -34,19 +33,20 @@ def tweetid2json(api: tweepy.API, tweetid: str, filename: str):
 
 
 def tweet2data(
+    site: hugo.HugoSite,
     api: tweepy.API,
     tweetid: str = "",
     tweet: tweepy.models.Status = None,
     force=False,
     rlevel=0,
     max_rlevel=20,
-    hugodata="data",
 ):
     """Save a tweet to site data
 
     Save its QTs as well.
 
     Arguments:
+        site:               A hugo.HugoSite object
         api:                A tweepy.API that has already authenticated
         tweetid:            The ID of a tweet to save
         tweet:              An already retrieved Status object from tweepy
@@ -55,7 +55,6 @@ def tweet2data(
                             This function calls itself for each QT, incrementing this value each time.
                             At some level we will stop, in case we are in some pathological case.
         max_rlevel:         The maximum number of QT or parent tweets to retrieve.
-        hugodata:           Path to a Hugo data/ directory
     """
 
     if (tweetid and tweet) or (not tweetid and not tweet):
@@ -64,7 +63,7 @@ def tweet2data(
     if not tweetid:
         tweetid = tweet.id_str
 
-    filename = f"{hugodata}/twarchive/{tweetid}.json"
+    filename = os.path.join(site.data_twarchive, f"{tweetid}.json")
 
     if os.path.exists(filename) and not force:
         logger.info(
@@ -97,18 +96,23 @@ def tweet2data(
 
     for reltweet in related_tweets:
         tweet2data_continue_on_error(
-            api, tweetid=reltweet, force=force, rlevel=rlevel, max_rlevel=max_rlevel
+            site,
+            api,
+            tweetid=reltweet,
+            force=force,
+            rlevel=rlevel,
+            max_rlevel=max_rlevel,
         )
 
 
 def tweet2data_continue_on_error(
+    site: hugo.HugoSite,
     api: tweepy.API,
     tweetid: str = "",
     tweet: tweepy.models.Status = None,
     force=False,
     rlevel=0,
     max_rlevel=20,
-    hugodata="data",
 ):
     """Call tweet2data() with the parameters, and handle exceptions from missing/removed tweets
 
@@ -117,13 +121,13 @@ def tweet2data_continue_on_error(
     """
     try:
         tweet2data(
+            site,
             api,
             tweetid=tweetid,
             tweet=tweet,
             force=force,
             rlevel=rlevel,
             max_rlevel=max_rlevel,
-            hugodata=hugodata,
         )
     except tweepy.errors.NotFound:
         # This appears to mean the tweet (or account) were intentionally deleted
@@ -137,6 +141,7 @@ def tweet2data_continue_on_error(
 
 
 def usertweets2data(
+    site: hugo.HugoSite,
     api: tweepy.API,
     screen_name: str,
     max_rlevel: int,
@@ -160,7 +165,7 @@ def usertweets2data(
     # Twitter API limit
     max_tweets_per_call = 200
 
-    downloaded_tweets = hugo.get_downloaded_tweets()
+    downloaded_tweets = hugo.get_downloaded_tweets(site)
     user_tweets = []
     oldest = None
     while True:
@@ -189,4 +194,4 @@ def usertweets2data(
     )
 
     for tweet in user_tweets:
-        tweet2data(api, tweet=tweet, force=force, max_rlevel=max_rlevel)
+        tweet2data(site, api, tweet=tweet, force=force, max_rlevel=max_rlevel)

@@ -2,8 +2,8 @@
 
 import os
 import pathlib
-import tempfile
 
+from twarchive import testutil
 from twarchive import twitterarchive
 
 
@@ -48,8 +48,8 @@ def test_parse_twitter_window_YTD_bullshit():
 
 
 def test_archive2infltweets():
-    with tempfile.TemporaryDirectory() as hugodata:
-        twitterarchive.archive2data(TESTARCHIVE, api=None, hugodata=hugodata)
-        tweetfiles = os.listdir(hugodata)
+    with testutil.TemporaryHugoSite() as site:
+        twitterarchive.archive2data(site, TESTARCHIVE, api=None)
+        tweetfiles = os.listdir(site.data_twarchive)
         # Don't forget: RTs are not saved when api=None
         assert len(tweetfiles) == 1

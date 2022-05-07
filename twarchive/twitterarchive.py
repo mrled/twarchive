@@ -19,7 +19,7 @@ import typing
 
 import tweepy
 
-from twarchive import logger, twitterapi
+from twarchive import hugo, logger, twitterapi
 from twarchive.inflatedtweet.from_twitter_archive import (
     inflated_tweet_from_twitter_archive,
     twitter_archive_tweet_is_low_fidelity_retweet,
@@ -66,7 +66,9 @@ class TwitterArchive(typing.NamedTuple):
     @functools.cache
     def generation_date(self) -> datetime.datetime:
         gendate_str = self.manifest["archiveInfo"]["generationDate"]
-        gendate_dt = datetime.datetime.fromisoformat(gendate_str)
+        # eg: "generationDate" : "2022-05-06T17:27:17.889Z"
+        # gendate_dt = datetime.datetime.fromisoformat(gendate_str)
+        gendate_dt = datetime.datetime.strptime(gendate_str, r"%Y-%m-%dT%H:%M:%S.%fz")
         return gendate_dt
 
     @classmethod
@@ -106,7 +108,7 @@ def parse_twitter_window_YTD_bullshit(
     return parsed
 
 
-def find_archives(archivedir="twitter-archives") -> typing.List[str]:
+def find_archives(site: hugo.HugoSite) -> typing.List[str]:
     """Find archives saved locally.
 
     Assumes archives are saved to ./twitter-archives in the root of a Hugo blog repo.
@@ -118,8 +120,8 @@ def find_archives(archivedir="twitter-archives") -> typing.List[str]:
     """
 
     archives = []
-    for archive in os.listdir(archivedir):
-        archive = TwitterArchive.frompath(os.path.join(archivedir, archive))
+    for archive in os.listdir(site.twitter_archives):
+        archive = TwitterArchive.frompath(os.path.join(site.twitter_archives, archive))
         missing = archive.anymissing()
         if missing:
             logger.debug(
@@ -131,15 +133,15 @@ def find_archives(archivedir="twitter-archives") -> typing.List[str]:
 
 
 def archive2data(
+    site: hugo.HugoSite,
     archive: TwitterArchive,
     api: typing.Optional[tweepy.API] = None,
     max_recurse=1,
     api_force_download=False,
-    hugodata="data",
 ):
     """Parse all the tweets in an archive and return a list of InflatedTweet objects"""
 
-    os.makedirs(f"{hugodata}/twarchive", exist_ok=True)
+    os.makedirs(site.data_twarchive, exist_ok=True)
 
     parsed_account = parse_twitter_window_YTD_bullshit(archive.accountjs)
     account = parsed_account[0]["account"]
@@ -168,6 +170,7 @@ def archive2data(
                     f"{logprefix} is a low fidelity retweet, will try to download the original from Twitter..."
                 )
                 twitterapi.tweet2data_continue_on_error(
+                    site,
                     api,
                     tweetid,
                     None,
@@ -187,6 +190,6 @@ def archive2data(
                 displayname,
                 archive,
             )
-            filename = f"{hugodata}/twarchive/{tweetid}.json"
+            filename = os.path.join(site.data_twarchive, f"{tweetid}.json")
             infltweet.jdump(filepath=filename)
             infltweets.append(infltweet)
