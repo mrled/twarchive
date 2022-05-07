@@ -189,6 +189,13 @@ def parseargs():
         help="Don't query the API for missing RTs, QTs, or thread parents",
     )
 
+    ## Subcommand: show-inline-tweets
+    sub_show_inline_tweets = subparsers.add_parser(
+        "show-inline-tweets",
+        parents=[hugo_opts],
+        help="Show a list of all tweets included by twarchive Hugo partials",
+    )
+
     ## Done
     parsed = parser.parse_args()
     return parser, parsed
@@ -294,6 +301,11 @@ def main():
                 max_recurse=parsed.max_recurse,
                 api_force_download=parsed.force,
             )
+
+    elif parsed.action == "show-inline-tweets":
+        site = hugo.HugoSite(parsed.hugo_site_base)
+        for inline in hugo.find_inline_tweets(site):
+            print(inline)
 
     else:
         raise Exception(f"Unknown action: {parsed.action}")

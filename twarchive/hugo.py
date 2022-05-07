@@ -29,7 +29,7 @@ def find_inline_tweets(site: HugoSite) -> typing.List[str]:
         "rg",
         "--no-filename",
         "--no-line-number",
-        "\{\{. twarchiveTweet .[0-9]+(-intentionallyinvalid)?",
+        r"\{\{. twarchiveTweet .[0-9]+(-intentionallyinvalid)?",
         site.content,
     ]
     rg = subprocess.run(rgcmd, capture_output=True)
@@ -46,7 +46,7 @@ def find_inline_tweets(site: HugoSite) -> typing.List[str]:
         "rg",
         "--no-filename",
         "--no-line-number",
-        "\{\{. twarchiveThread .[0-9]+(-intentionallyinvalid)?",
+        r"\{\{. twarchiveThread .[0-9]+(-intentionallyinvalid)?",
         site.content,
     ]
     rg = subprocess.run(rgcmd, capture_output=True)
@@ -82,7 +82,7 @@ def data2md(site: HugoSite):
         with open(tweet_json_path) as tjfp:
             tweet = json.load(tjfp)
         tweet_date = datetime.datetime.strptime(tweet["date"], "%Y-%m-%dT%H:%M:%S%z")
-        tweetid = tweet_json.strip("\.json")
+        tweetid = tweet_json.strip(".json")
         tweet_md_path = os.path.join(site.content_twarchive, f"{tweetid}.md")
         mdcontents = textwrap.dedent(
             f"""\
