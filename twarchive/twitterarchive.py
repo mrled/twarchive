@@ -25,7 +25,6 @@ from twarchive.inflatedtweet.from_twitter_archive import (
     twitter_archive_tweet_is_low_fidelity_retweet,
 )
 from twarchive.inflatedtweet.inflatedtweet import InflatedTweet
-from twarchive.inflatedtweet.infltweet_json import InflatedTweetEncoder
 
 
 class TwitterArchive(typing.NamedTuple):
@@ -189,6 +188,5 @@ def archive2data(
                 archive,
             )
             filename = f"{hugodata}/twarchive/{tweetid}.json"
-            with open(filename, "w") as fp:
-                json.dump(infltweet, fp, cls=InflatedTweetEncoder, indent=2)
+            infltweet.jdump(filepath=filename)
             infltweets.append(infltweet)

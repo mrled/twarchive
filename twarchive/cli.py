@@ -1,4 +1,5 @@
 import argparse
+import json
 import os
 import pdb
 import sys
@@ -11,6 +12,7 @@ from twarchive import logger
 from twarchive import twitterapi
 from twarchive import twitterarchive
 from twarchive import version
+from twarchive.inflatedtweet.inflatedtweet import InflatedTweet
 
 
 def idb_excepthook(type, value, tb):
@@ -52,6 +54,7 @@ def parseargs():
         help="Launch a debugger on unhandled exception",
     )
 
+    ## Options related to the Twitter API
     twitter_opts = argparse.ArgumentParser(add_help=False)
     # Defaults are official keys for iOS app
     # https://gist.github.com/shobotch/5160017
@@ -75,6 +78,7 @@ def parseargs():
         help="Redownload data that has already been downloaded",
     )
 
+    ## Subcommand: version
     sub_version = subparsers.add_parser("version", help="Show program version")
     sub_version.add_argument(
         "--quiet",
@@ -82,6 +86,32 @@ def parseargs():
         help="Show just the version (used in development)",
     )
 
+    ## Subcommand: internals
+    sub_internals = subparsers.add_parser(
+        "internals", help="Internal commands used in development"
+    )
+    sub_internals_subparsers = sub_internals.add_subparsers(
+        dest="internalsaction", required=True
+    )
+
+    ## Subcommand: internals: Subcommand: examine
+    sub_internals_sub_examine = sub_internals_subparsers.add_parser(
+        "examine",
+        parents=[twitter_opts],
+        help="Get the response from Twitter and launch the debugger",
+    )
+    sub_internals_sub_examine.add_argument("tweetid", help="ID of the tweet to examine")
+
+    ## Subcommand: internals: Subcommand: json-load-dump-tweets
+    # Useful for testing our en/de-coders
+    # Also nice to ensure that all tweets were saved with indent=2 and sort_keys=True,
+    # which is useful when saving the resulting JSON to git for diffing etc
+    sub_internals_sub_json_load_dump_tweets = sub_internals_subparsers.add_parser(
+        "json-load-dump-tweets",
+        help="Use our custom JSON en/de-coders to parse JSON of every tweet saved to data/twarchive/*.json, and save it back out.",
+    )
+
+    ## Subcommand: tweet2json
     sub_tweet2json = subparsers.add_parser(
         "tweet2json",
         parents=[twitter_opts],
@@ -90,6 +120,7 @@ def parseargs():
     sub_tweet2json.add_argument("tweetid", help="ID of a tweet to download")
     sub_tweet2json.add_argument("filename", help="Path to save JSON to")
 
+    ## Subcommand: tweet2data
     sub_tweet2data = subparsers.add_parser(
         "tweet2data",
         parents=[twitter_opts],
@@ -97,28 +128,25 @@ def parseargs():
     )
     sub_tweet2data.add_argument("tweetid", help="ID of a tweet to download")
 
+    ## Subcommand: showinlines
     sub_showinlines = subparsers.add_parser(
         "showinlines", help="Show tweets inlined with the 'twarchiveTweet' shortcode"
     )
 
+    ## Subcommand: inline2data
     sub_inline2data = subparsers.add_parser(
         "inline2data",
         parents=[twitter_opts],
         help="Download JSON for all tweets that are inlined via the 'twarchiveTweet' shortcode.",
     )
 
+    ## Subcommand: data2md
     sub_data2md = subparsers.add_parser(
         "data2md",
         help="Create a page under content/twarchive/ for every downloaded tweet",
     )
 
-    sub_examine = subparsers.add_parser(
-        "examine",
-        parents=[twitter_opts],
-        help="Get the response from Twitter and launch the debugger",
-    )
-    sub_examine.add_argument("tweetid", help="ID of the tweet to examine")
-
+    ## Subcommand: user2data
     sub_user2data = subparsers.add_parser(
         "user2data",
         parents=[twitter_opts],
@@ -131,6 +159,7 @@ def parseargs():
         help="Keep retrieving tweets from this user even if we retrieve a tweet we already have. Has no effect if --force is True, but if --force is False, it will download older tweets without redownloading media/QTs from newer ones it already has.",
     )
 
+    ## Subcommand: archive2data
     sub_archive2data = subparsers.add_parser(
         "archive2data",
         parents=[twitter_opts],
@@ -146,6 +175,7 @@ def parseargs():
         help="Don't query the API for missing RTs, QTs, or thread parents",
     )
 
+    ## Done
     parsed = parser.parse_args()
     return parser, parsed
 
@@ -162,6 +192,18 @@ def main():
         else:
             print(f"{parser.prog} version {version.__version__}")
         return 0
+    elif parsed.action == "internals":
+        if parsed.internalsaction == "examine":
+            api = twitterapi.authenticate(parsed.consumer_key, parsed.consumer_secret)
+            tweet = twitterapi.get_status_expanded(api, parsed.tweetid)
+            pdb.set_trace()
+        elif parsed.internalsaction == "json-load-dump-tweets":
+            for tweetjson in os.listdir("data/twarchive"):
+                tweetjson_path = os.path.join("data/twarchive", tweetjson)
+                with open(tweetjson_path) as tjfp:
+                    infltweet = InflatedTweet.jload(tjfp)
+                with open(tweetjson_path, "w") as tjfp:
+                    infltweet.jdump(tjfp)
     elif parsed.action == "tweet2json":
         api = twitterapi.authenticate(parsed.consumer_key, parsed.consumer_secret)
         twitterapi.tweetid2json(api, parsed.tweetid, parsed.filename)
@@ -186,10 +228,6 @@ def main():
         twitterapi.data2md()
     elif parsed.action == "data2md":
         hugo.data2md()
-    elif parsed.action == "examine":
-        api = twitterapi.authenticate(parsed.consumer_key, parsed.consumer_secret)
-        tweet = twitterapi.get_status_expanded(api, parsed.tweetid)
-        pdb.set_trace()
     elif parsed.action == "user2data":
         api = twitterapi.authenticate(parsed.consumer_key, parsed.consumer_secret)
         twitterapi.usertweets2data(

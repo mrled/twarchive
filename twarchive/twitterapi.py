@@ -7,7 +7,6 @@ import tweepy
 
 from twarchive import hugo
 from twarchive import logger
-from twarchive.inflatedtweet.infltweet_json import InflatedTweetEncoder
 from twarchive.inflatedtweet.inflatedtweet import InflatedTweet
 from twarchive.inflatedtweet.from_tweepy import inflated_tweet_from_tweepy
 
@@ -31,8 +30,7 @@ def get_status_expanded(api: tweepy.API, tweetid: str) -> tweepy.models.Status:
 def tweetid2json(api: tweepy.API, tweetid: str, filename: str):
     tweet = get_status_expanded(api, tweetid)
     infltweet = InflatedTweet.from_tweet(tweet)
-    with open(filename, "w") as fp:
-        json.dump(infltweet, fp, cls=InflatedTweetEncoder, indent=2)
+    infltweet.jdump(filepath=filename)
 
 
 def tweet2data(
@@ -85,8 +83,7 @@ def tweet2data(
         tweet = get_status_expanded(api, tweetid)
 
     infltweet = inflated_tweet_from_tweepy(tweet)
-    with open(filename, "w") as fp:
-        json.dump(infltweet, fp, cls=InflatedTweetEncoder, indent=2)
+    infltweet.jdump(filepath=filename)
     rlevel += 1
 
     related_tweets = []
