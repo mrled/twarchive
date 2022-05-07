@@ -35,6 +35,24 @@ def twitter_archive_tweet_is_low_fidelity_retweet(tweet: typing.Dict) -> bool:
     return tweet["full_text"].startswith("RT @")
 
 
+def first_mention_from_tweet_text(text: str) -> str:
+    """Given text of a tweet, extract the first @mention
+
+    Kind of a fucking shitty hack lol
+    """
+    try:
+        first_space_idx = text.index(" ")
+    except ValueError:
+        first_space_idx = len(text)
+    try:
+        first_colon_idx = text.index(":")
+    except ValueError:
+        first_colon_idx = len(text)
+    username_end_idx = min(first_space_idx, first_colon_idx)
+    replyto_username = text[1:username_end_idx]
+    return replyto_username
+
+
 def inflated_tweet_from_twitter_archive(
     tweet: typing.Dict,
     user_pfp: bytes,
@@ -84,17 +102,7 @@ def inflated_tweet_from_twitter_archive(
         if "in_reply_to_screen_name" in tweet:
             replyto_username = tweet["in_reply_to_screen_name"]
         elif tweet["full_text"].startswith("@"):
-            # TODO: wow this is a fucking shitty hack
-            try:
-                first_space_idx = tweet["full_text"].index(" ")
-            except ValueError:
-                first_space_idx = len(tweet["full_text"])
-            try:
-                first_colon_idx = tweet["full_text"].index(":")
-            except ValueError:
-                first_colon_idx = len(tweet["full_text"])
-            username_end_idx = min(first_space_idx, first_colon_idx)
-            replyto_username = tweet["full_text"][1:username_end_idx]
+            replyto_username = first_mention_from_tweet_text(tweet["full_text"])
         else:
             raise Exception(
                 "Can't figure out a username this tweet is replying to, lol"

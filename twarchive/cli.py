@@ -136,7 +136,10 @@ def parseargs():
         parents=[twitter_opts],
         help="Parse a Twitter archive extracted to twitter-archives/<name> and save the result to the Hugo data dir",
     )
-    sub_archive2data.add_argument("archive", help="Name of the archive to parse")
+    sub_archive2data.add_argument(
+        "--archive",
+        help="Name of the archive to parse; if not present, find archives automatically under ./twitter-archives",
+    )
     sub_archive2data.add_argument(
         "--no-api",
         action="store_true",
@@ -198,18 +201,24 @@ def main():
         )
         twitterapi.data2md()
     elif parsed.action == "archive2data":
-        archive = twitterarchive.TwitterArchive.frompath(
-            os.path.join("twitter-archives", parsed.archive)
-        )
+        if parsed.archive:
+            archives = [
+                twitterarchive.TwitterArchive.frompath(
+                    os.path.join("twitter-archives", parsed.archive)
+                )
+            ]
+        else:
+            archives = twitterarchive.find_archives()
         if parsed.no_api:
             api = None
         else:
             api = twitterapi.authenticate(parsed.consumer_key, parsed.consumer_secret)
-        twitterarchive.archive2data(
-            archive,
-            api=api,
-            max_recurse=parsed.max_recurse,
-            api_force_download=parsed.force,
-        )
+        for archive in archives:
+            twitterarchive.archive2data(
+                archive,
+                api=api,
+                max_recurse=parsed.max_recurse,
+                api_force_download=parsed.force,
+            )
     else:
         raise Exception(f"Unknown action: {parsed.action}")

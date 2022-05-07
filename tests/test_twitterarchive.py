@@ -24,6 +24,16 @@ TESTARCHIVE = twitterarchive.TwitterArchive.frompath(TESTDATADIR.parent)
 # )
 
 
+def test_testdata_is_valid():
+    assert TESTARCHIVE.anymissing() == []
+
+
+def test_parse_twitter_manifest_js():
+    parsed = twitterarchive.parse_twitter_manifest_js(TESTARCHIVE.manifestjs)
+    assert parsed["userInfo"]["userName"] == "mrled"
+    assert parsed["archiveInfo"]["generationDate"] == "2022-05-06T17:27:17.889Z"
+
+
 def test_parse_twitter_window_YTD_bullshit():
     parsed = twitterarchive.parse_twitter_window_YTD_bullshit(TESTARCHIVE.profilejs)
     assert len(parsed) == 1

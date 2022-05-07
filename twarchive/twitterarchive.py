@@ -29,17 +29,32 @@ class TwitterArchive(typing.NamedTuple):
     """An on-disk, extracted Twitter archive"""
 
     path: str
+    manifestjs: str
     profilejs: str
     tweetjs: str
     accountjs: str
     profilemedia: str
     tweetmedia: str
 
+    def anymissing(self) -> typing.List[str]:
+        """Checks for existence of required files"""
+        required = [
+            self.manifestjs,
+            self.profilejs,
+            self.tweetjs,
+            self.accountjs,
+            self.profilemedia,
+            self.tweetmedia,
+        ]
+        missing = [i for i in required if not os.path.exists(i)]
+        return missing
+
     @classmethod
     def frompath(cls, p: str) -> "TwitterArchive":
         data = os.path.join(p, "data")
         archive = cls(
             p,
+            os.path.join(data, "manifest.js"),
             os.path.join(data, "profile.js"),
             os.path.join(data, "tweet.js"),
             os.path.join(data, "account.js"),
@@ -47,6 +62,15 @@ class TwitterArchive(typing.NamedTuple):
             os.path.join(data, "tweet_media"),
         )
         return archive
+
+
+def parse_twitter_manifest_js(manifest: str) -> typing.Dict:
+    """The fucking Twitter archive MANIFEST is in a DIFFERENT fucking deranged format for no good reason"""
+    with open(manifest) as mfp:
+        contents = mfp.read()
+    unfucked = re.sub(r"^window\.__THAR_CONFIG = ", "", contents)
+    parsed = json.loads(unfucked)
+    return parsed
 
 
 def parse_twitter_window_YTD_bullshit(
@@ -62,7 +86,7 @@ def parse_twitter_window_YTD_bullshit(
     return parsed
 
 
-def find_archives(archives="twiter-archives") -> typing.List[str]:
+def find_archives(archivedir="twitter-archives") -> typing.List[str]:
     """Find archives saved locally.
 
     Assumes archives are saved to ./twitter-archives in the root of a Hugo blog repo.
@@ -74,10 +98,13 @@ def find_archives(archives="twiter-archives") -> typing.List[str]:
     """
 
     archives = []
-    for item in os.listdir(archives):
-        archive = TwitterArchive.frompath(os.path.join(archives, item))
-        if not os.path.exists(archive.profilejs) or not os.path.exists(archive.tweetjs):
-            logger.debug(f"Skipping item {item} as it is not a complete archive")
+    for archive in os.listdir(archivedir):
+        archive = TwitterArchive.frompath(os.path.join(archivedir, archive))
+        missing = archive.anymissing()
+        if missing:
+            logger.debug(
+                f"Skipping archive {archive} as it is not a complete archive, missing: {missing}"
+            )
             continue
         archives.append(archive)
     return archives
