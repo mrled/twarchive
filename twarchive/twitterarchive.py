@@ -9,6 +9,9 @@ Note that a tweet found in an archive should _never_ be redownloaded,
 at least as long as Twitter does not permit edits.
 """
 
+import datetime
+from functools import cache
+import functools
 import json
 import os
 import re
@@ -26,7 +29,12 @@ from twarchive.inflatedtweet.infltweet_json import InflatedTweetEncoder
 
 
 class TwitterArchive(typing.NamedTuple):
-    """An on-disk, extracted Twitter archive"""
+    """An on-disk, extracted Twitter archive
+
+    Note: NamedTuple objects cannot be annotated as @functools.cached_property
+    Instead, they can use stacked @property, @functools.cache decorators.
+    <https://docs.python.org/dev/library/functools.html#functools.cached_property>
+    """
 
     path: str
     manifestjs: str
@@ -48,6 +56,19 @@ class TwitterArchive(typing.NamedTuple):
         ]
         missing = [i for i in required if not os.path.exists(i)]
         return missing
+
+    @property
+    @functools.cache
+    def manifest(self) -> typing.Dict:
+        parsed_manifest = parse_twitter_manifest_js(self.manifestjs)
+        return parsed_manifest
+
+    @property
+    @functools.cache
+    def generation_date(self) -> datetime.datetime:
+        gendate_str = self.manifest["archiveInfo"]["generationDate"]
+        gendate_dt = datetime.datetime.fromisoformat(gendate_str)
+        return gendate_dt
 
     @classmethod
     def frompath(cls, p: str) -> "TwitterArchive":

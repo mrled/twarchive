@@ -123,7 +123,7 @@ def inflated_tweet_from_twitter_archive(
         user_screenname,
         user_displayname,
         user_pfp,
-        datetime.datetime.utcnow(),
+        archive.generation_date,
         replyto_tweetid,
         replyto_username,
     )
