@@ -12,31 +12,46 @@ at least as long as Twitter does not permit edits.
 import json
 import os
 import re
-import tempfile
 import typing
 
-from twarchive import logger
+import tweepy
+
+from twarchive import logger, twitterapi
+from twarchive.inflatedtweet.from_twitter_archive import (
+    inflated_tweet_from_twitter_archive,
+    twitter_archive_tweet_is_low_fidelity_retweet,
+)
+from twarchive.inflatedtweet.inflatedtweet import InflatedTweet
+from twarchive.inflatedtweet.infltweet_json import InflatedTweetEncoder
 
 
 class TwitterArchive(typing.NamedTuple):
     """An on-disk, extracted Twitter archive"""
 
+    path: str
     profilejs: str
     tweetjs: str
+    accountjs: str
     profilemedia: str
     tweetmedia: str
 
-    def frompath(p: str) -> "TwitterArchive":
-        archive = TwitterArchive(
-            os.path.join(p, "data/profile.js"),
-            os.path.join(p, "data/tweet.js"),
-            os.path.join(p, "data/profile_media"),
-            os.path.join(p, "data/tweet_media"),
+    @classmethod
+    def frompath(cls, p: str) -> "TwitterArchive":
+        data = os.path.join(p, "data")
+        archive = cls(
+            p,
+            os.path.join(data, "profile.js"),
+            os.path.join(data, "tweet.js"),
+            os.path.join(data, "account.js"),
+            os.path.join(data, "profile_media"),
+            os.path.join(data, "tweet_media"),
         )
         return archive
 
 
-def parse_twitter_window_YTD_bullshit(archivefile: str) -> typing.Dict:
+def parse_twitter_window_YTD_bullshit(
+    archivefile: str,
+) -> typing.Union[typing.Dict, typing.List]:
     """The fucking Twitter archive is in a deranged format for no good reason."""
     with open(archivefile) as afp:
         contents = afp.read()
@@ -68,14 +83,64 @@ def find_archives(archives="twiter-archives") -> typing.List[str]:
     return archives
 
 
-def archive2data(archive: TwitterArchive, hugodata="data"):
-    """Parse all the tweets in an archive and save them as individual files to Hugo"""
+def archive2data(
+    archive: TwitterArchive,
+    api: typing.Optional[tweepy.API] = None,
+    max_recurse=1,
+    api_force_download=False,
+    hugodata="data",
+):
+    """Parse all the tweets in an archive and return a list of InflatedTweet objects"""
+
+    os.makedirs(f"{hugodata}/twarchive", exist_ok=True)
+
+    parsed_account = parse_twitter_window_YTD_bullshit(archive.accountjs)
+    account = parsed_account[0]["account"]
+    username = account["username"]
+    accountid = account["accountId"]
+    displayname = account["accountDisplayName"]
 
     parsed_profile = parse_twitter_window_YTD_bullshit(archive.profilejs)
     profile = parsed_profile[0]["profile"]
+    pfp_url_filename = profile["avatarMediaUrl"].split("/")[-1]
+    pfp_filename = f"{accountid}-{pfp_url_filename}"
+    pfp_path = os.path.join(archive.profilemedia, pfp_filename)
+    with open(pfp_path, "br") as pfpfp:
+        pfp_bytes = pfpfp.read()
 
     parsed_tweets = parse_twitter_window_YTD_bullshit(archive.tweetjs)
-    tweets = parsed_tweets
 
-    for tweet in tweets:
-        print(tweet["tweet"]["full_text"])
+    infltweets: typing.List[InflatedTweet] = []
+    for outertweet in parsed_tweets:
+        tweet = outertweet["tweet"]
+        tweetid = tweet["id_str"]
+        logprefix = f"Tweet {tweetid} in archive {archive.path}"
+        if twitter_archive_tweet_is_low_fidelity_retweet(tweet):
+            if api:
+                logger.info(
+                    f"{logprefix} is a low fidelity retweet, will try to download the original from Twitter..."
+                )
+                twitterapi.tweet2data_continue_on_error(
+                    api,
+                    tweetid,
+                    None,
+                    force=api_force_download,
+                    max_rlevel=max_recurse,
+                )
+            else:
+                logger.info(
+                    f"{logprefix} is low fidelity retweet and api argument was not passed, skipping..."
+                )
+        else:
+            logger.info(f"{logprefix} is a regular tweet, saving to disk...")
+            infltweet = inflated_tweet_from_twitter_archive(
+                tweet,
+                pfp_bytes,
+                username,
+                displayname,
+                archive,
+            )
+            filename = f"{hugodata}/twarchive/{tweetid}.json"
+            with open(filename, "w") as fp:
+                json.dump(infltweet, fp, cls=InflatedTweetEncoder, indent=2)
+            infltweets.append(infltweet)

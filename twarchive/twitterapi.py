@@ -6,8 +6,10 @@ import os
 import tweepy
 
 from twarchive import hugo
-from twarchive import inflatedtweet
 from twarchive import logger
+from twarchive.inflatedtweet.infltweet_json import InflatedTweetEncoder
+from twarchive.inflatedtweet.inflatedtweet import InflatedTweet
+from twarchive.inflatedtweet.from_tweepy import inflated_tweet_from_tweepy
 
 
 def authenticate(consumer_key: str, consumer_secret: str) -> tweepy.API:
@@ -28,9 +30,9 @@ def get_status_expanded(api: tweepy.API, tweetid: str) -> tweepy.models.Status:
 
 def tweetid2json(api: tweepy.API, tweetid: str, filename: str):
     tweet = get_status_expanded(api, tweetid)
-    infltweet = inflatedtweet.InflatedTweet.from_tweet(tweet)
+    infltweet = InflatedTweet.from_tweet(tweet)
     with open(filename, "w") as fp:
-        json.dump(infltweet, fp, cls=inflatedtweet.InflatedTweetEncoder, indent=2)
+        json.dump(infltweet, fp, cls=InflatedTweetEncoder, indent=2)
 
 
 def tweet2data(
@@ -82,9 +84,9 @@ def tweet2data(
         logger.info(f"Downloading tweet {tweetid}")
         tweet = get_status_expanded(api, tweetid)
 
-    infltweet = inflatedtweet.InflatedTweet.from_tweet(tweet)
+    infltweet = inflated_tweet_from_tweepy(tweet)
     with open(filename, "w") as fp:
-        json.dump(infltweet, fp, cls=inflatedtweet.InflatedTweetEncoder, indent=2)
+        json.dump(infltweet, fp, cls=InflatedTweetEncoder, indent=2)
     rlevel += 1
 
     related_tweets = []
@@ -97,19 +99,44 @@ def tweet2data(
         pass
 
     for reltweet in related_tweets:
-        try:
-            tweet2data(
-                api, tweetid=reltweet, force=force, rlevel=rlevel, max_rlevel=max_rlevel
-            )
-        except tweepy.errors.NotFound:
-            # This appears to mean the tweet (or account) were intentionally deleted
-            logger.warning(f"Could not find tweet with ID {reltweet}")
-        except tweepy.errors.Forbidden as exc:
-            # This appears to happen when the account was suspended
-            exc_message = str(exc).replace("\n", " ")
-            logger.warning(
-                f"Not permitted to access tweet with ID {reltweet}: {exc_message}"
-            )
+        tweet2data_continue_on_error(
+            api, tweetid=reltweet, force=force, rlevel=rlevel, max_rlevel=max_rlevel
+        )
+
+
+def tweet2data_continue_on_error(
+    api: tweepy.API,
+    tweetid: str = "",
+    tweet: tweepy.models.Status = None,
+    force=False,
+    rlevel=0,
+    max_rlevel=20,
+    hugodata="data",
+):
+    """Call tweet2data() with the parameters, and handle exceptions from missing/removed tweets
+
+    Tweepy will raise exceptions if a tweet has been deleted or an account has gone private.
+    Catch and log these exceptions, then continue.
+    """
+    try:
+        tweet2data(
+            api,
+            tweetid=tweetid,
+            tweet=tweet,
+            force=force,
+            rlevel=rlevel,
+            max_rlevel=max_rlevel,
+            hugodata=hugodata,
+        )
+    except tweepy.errors.NotFound:
+        # This appears to mean the tweet (or account) were intentionally deleted
+        logger.warning(f"Could not find tweet with ID {tweetid}")
+    except tweepy.errors.Forbidden as exc:
+        # This appears to happen when the account was suspended
+        exc_message = str(exc).replace("\n", " ")
+        logger.warning(
+            f"Not permitted to access tweet with ID {tweetid}: {exc_message}"
+        )
 
 
 def usertweets2data(
