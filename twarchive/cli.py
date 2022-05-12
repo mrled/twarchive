@@ -1,9 +1,9 @@
 import argparse
-import json
 import os
 import pdb
 import sys
 import traceback
+import typing
 
 import tweepy
 
@@ -43,6 +43,23 @@ def inline2data(
             twitterapi.tweet2data(
                 site, api, tweetid=tweetid, force=force, max_rlevel=max_rlevel
             )
+
+
+def list_directory_tweetid_filename(directory: str) -> typing.List[str]:
+    """List a directory of files with tweetid filenames and return them sorted.
+
+    When sorting, zero pad all tweet IDs.
+
+    Filenames that do not start with numbers are ignored.
+    """
+
+    def sortkey(s: str):
+        return int(s.split(".")[0])
+
+    children = os.listdir(directory)
+    child_numbers = [c for c in children if c[0].isdigit()]
+    child_numbers.sort(key=sortkey)
+    return child_numbers
 
 
 def parseargs():
@@ -94,6 +111,18 @@ def parseargs():
         "--quiet",
         action="store_true",
         help="Show just the version (used in development)",
+    )
+
+    ## Subcommand: ls
+    sub_ls = subparsers.add_parser(
+        "ls",
+        parents=[hugo_opts],
+        help="List tweet files in a Hugo repository, sorted by tweet ID and accounting for tweet IDs of different lengths",
+    )
+    sub_ls.add_argument(
+        "directory",
+        choices=["data", "content"],
+        help="Choose the directory to list - either data/twarchive or content/twarchive",
     )
 
     ## Subcommand: internals
@@ -213,6 +242,17 @@ def main():
         else:
             print(f"{parser.prog} version {version.__version__}")
         return 0
+
+    elif parsed.action == "ls":
+        site = hugo.HugoSite(parsed.hugo_site_base)
+        if parsed.directory == "data":
+            dir = site.data_twarchive
+        elif parsed.directory == "content":
+            dir = site.content_twarchive
+        else:
+            raise Exception(f"Unknown directory {parsed.directory}")
+        children = [os.path.join(dir, c) for c in list_directory_tweetid_filename(dir)]
+        print("\n".join(children))
 
     elif parsed.action == "internals":
         if parsed.internalsaction == "examine":
