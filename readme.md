@@ -43,7 +43,6 @@ and production deployment (eg to Netlify) does not need Python.
 
 You have to enable your site as a Hugo module.
 Here's what I did for my site at <https://me.micahrl.com>.
-(This theme is endorsed by YAML GANG, TOMLailures stay mad.)
 
 ```sh
 cd /path/to/me.micahrl.com      # The git checkout dir for my site
@@ -54,6 +53,7 @@ In your site's configuration file,
 themes should be defined in a list,
 using the go module name for the twarchive theme.
 Here's my site's config.
+(This theme is endorsed by YAML GANG, TOMLailures stay mad.)
 
 ```yaml
 
@@ -159,25 +159,24 @@ You can see its source code, including a very barebones theme,
 ## The `twarchive` command
 
 ```
-> twarchive -h
-usage: tweet [-h] [--debug] {tweet2json,tweet2data,showinlines,inline2data,data2md,examine,user2data} ...
+> twarchive --help
+usage: twarchive [-h] [--debug] {version,ls,internals,tweet2json,tweet2data,showinlines,inline2data,data2md,user2data,archive2data,show-inline-tweets} ...
 
 Manage tweets
 
 positional arguments:
-  {tweet2json,tweet2data,showinlines,inline2data,data2md,examine,user2data}
+  {version,ls,internals,tweet2json,tweet2data,showinlines,inline2data,data2md,user2data,archive2data,show-inline-tweets}
+    version             Show program version
+    ls                  List tweet files in a Hugo repository, sorted by tweet ID and accounting for tweet IDs of different lengths
+    internals           Internal commands used in development
     tweet2json          Download JSON for a tweet, including image data
-    tweet2data          Download JSON for a tweet, and store it under
-                        './data/twarchive/$tweetId.json', including any QTs or
-                        parents
+    tweet2data          Download JSON for a tweet, and store it under './data/twarchive/$tweetId.json', including any QTs or parents
     showinlines         Show tweets inlined with the 'twarchiveTweet' shortcode
-    inline2data         Download JSON for all tweets that are inlined via the
-                        'twarchiveTweet' shortcode.
-    data2md             Create a page under content/twarchive/ for every
-                        downloaded tweet
-    examine             Get the response from Twitter and launch the debugger
-    user2data           Retrieve a user's full timeline from Twitter and store
-                        in site data
+    inline2data         Download JSON for all tweets that are inlined via the 'twarchiveTweet' shortcode.
+    data2md             Create a page under content/twarchive/ for every downloaded tweet
+    user2data           Retrieve a user's full timeline from Twitter and store in site data
+    archive2data        Parse a Twitter archive extracted to twitter-archives/<name> and save the result to the Hugo data dir
+    show-inline-tweets  Show a list of all tweets included by twarchive Hugo partials
 
 optional arguments:
   -h, --help            show this help message and exit
