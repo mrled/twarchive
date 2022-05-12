@@ -24,9 +24,9 @@
   {{- partial "js/twarchiveChildFrame.js" | safeJS -}}
   const tweetId = "{{ .Params.tweetId }}"
 
-  twarchiveMessageSizeToParent(tweetId);
-  const resizeObserver = new ResizeObserver(e => twarchiveMessageSizeToParent(tweetId));
-  resizeObserver.observe(document.documentElement);
+  // Note that the observer fires when it starts.
+  // https://stackoverflow.com/questions/67751039/javascript-resizeobserver-is-triggered-unexpected
+  twarchiveResizeObservationStart();
 
   twarchiveDisplayDataUri();
 </script>

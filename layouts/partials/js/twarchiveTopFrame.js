@@ -22,7 +22,7 @@ function twarchiveResizeTweetFrames(tweetId) {
   for (const frame of tweetFrames) {
     const body = frame.contentDocument.body;
     if (!body) {
-      // I'm not sure why this happens. Early load on big page?
+      // console.log(`twarchiveResizeTweetFrames(${tweetId}) called but there is no body. I'm not sure why this happens. Early load on a big page?`)
       continue;
     }
     const bcr = body.getBoundingClientRect();
