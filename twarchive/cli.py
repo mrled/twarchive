@@ -297,7 +297,7 @@ def main():
             force=parsed.force,
             max_rlevel=parsed.max_recurse,
         )
-        twitterapi.data2md(site)
+        hugo.data2md(site)
 
     elif parsed.action == "data2md":
         site = hugo.HugoSite(parsed.hugo_site_base)
@@ -314,7 +314,7 @@ def main():
             force=parsed.force,
             retrieve_all=parsed.retrieve_all,
         )
-        twitterapi.data2md(site)
+        hugo.data2md(site)
 
     elif parsed.action == "archive2data":
         site = hugo.HugoSite(parsed.hugo_site_base)
