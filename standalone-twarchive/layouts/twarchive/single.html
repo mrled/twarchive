@@ -1,0 +1,20 @@
+{{- $tweet := index .Site.Data.twarchive .Params.tweetid -}}
+{{- $tweetDate := $tweet.date | time }}
+<html>
+<head>
+  {{ partial "head.html" . }}
+</head>
+<body>
+  {{ partial "sitenav.html" . }}
+  <section class="tweets-micahrl-content single-tweet">
+    <h1 id="single-tweet-page-h1">
+      Tweet from @{{ $tweet.username}} on {{ $tweetDate.Format .Site.Params.dateform }}
+    </h1>
+    {{- partial "twarchiveFrame.html" (dict "ctx" . "tweetId" .Params.tweetid) -}}
+  </section>
+  <script>
+    {{- partial "js/twarchiveTopFrame.js" | safeJS -}}
+    twarchiveDisplayDataUri();
+  </script>
+</body>
+</html>

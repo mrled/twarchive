@@ -17,7 +17,7 @@ function twarchiveDisplayDataUri() {
 
     // Get a new, blank <body>
     document.documentElement.innerHTML = document.implementation.createHTMLDocument().documentElement.outerHTML;
-    // This should now be the very simple: <html><head></head><body></body></html>
+    // This should now be a simple html document with empty head and body elements
     document.body.style = "margin: 0; padding: 0;"
 
     // Create an iframe containing the data URI

@@ -1,0 +1,32 @@
+baseURL: http://example.org
+languageCode: en-us
+title: twarchive example site
+
+theme:
+  - standalone-twarchive
+  - twarchive
+
+mediaTypes:
+  text/html+tweet:
+    suffixes: ["tweet.html"]
+
+outputs:
+  home:
+    - HTML
+  section:
+    - HTML
+    - HtmlTweet
+
+outputFormats:
+  HtmlTweet:
+    mediatype: text/html+tweet
+    suffix: tweet.html
+    isPlainText: true
+    notAlternative: false
+
+params:
+  dateform: "2006-01-02 03:04:05 -07:00"
+
+disableKinds:
+  - taxonomy
+  - taxonomyTerm

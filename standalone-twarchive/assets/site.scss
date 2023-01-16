@@ -1,0 +1,49 @@
+:root {
+  --tweets-micahrl-bg-color: var(--twarchive-twitter-2xlightgray);
+  --tweets-micahrl-fg-color: var(--twarchive-twitter-black);
+  --tweets-micahrl-link-unvisited-color: var(--twarchive-twitter-blue);
+  --tweets-micahrl-link-visited-color: var(--twarchive-twitter-blue);
+  // --tweets-micahrl-link-visited-color: #991df2;
+
+  --content-width: 30em;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tweets-micahrl-bg-color: var(--twarchive-twitter-black);
+    --tweets-micahrl-fg-color: var(--twarchive-twitter-2xlightgray);
+  }
+}
+
+body {
+  font-family: sans-serif;
+  margin: 2em;
+  background-color: var(--tweets-micahrl-bg-color);
+  color: var(--tweets-micahrl-fg-color);
+}
+
+.tweets-micahrl-content {
+  max-width: var(--content-width);
+}
+
+.tweets-micahrl-sitenav {
+  ol {
+    li {
+      display: inline-block;
+      padding: 0.5em 1em;
+    }
+  }
+}
+
+a {
+  color: var(--tweets-micahrl-link-unvisited-color);
+  &:visited {
+    color: var(--tweets-micahrl-link-visited-color);
+  }
+}
+
+@media (max-width: 400px) {
+  :root {
+    --content-width: 24em;
+  }
+}

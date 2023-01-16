@@ -37,5 +37,9 @@ twineupload: venv $(DIST_WHEEL) $(DIST_TARGZ) ## Upload Python packages to PyPi
 	venv/bin/twine upload $(DIST_WHEEL) $(DIST_TARGZ)
 
 .PHONY: tests
-tests: venv
+tests: venv ## Run unit tests for the Python project
 	venv/bin/python -m unittest discover
+
+.PHONY: dev
+dev: ## Run a dev server for the exampleSite
+	cd ./exampleSite && hugo serve &
