@@ -1,14 +1,27 @@
 # twarchive
 
-`twarchive` is a Hugo utility theme and Python script for archiving tweets.
+twarchive is a set of projects for archiving tweets for Hugo static sites.
 
-Tweets are stored in high fidelity locally,
-and remain accessible even if they are deleted on Twitter,
-the user gets suspended or deletes their account,
-etc.
-
-Tweets archived this way use no Twitter styles or Twitter JavaScript
-(but (unfortunately) JavaScript is required to get good UX for displaying them in an iframe).
+* `twarchive` is also the name of a program for downloading tweet data to a local archive,
+  written in Python.
+  Tweets are stored in high fidelity locally,
+  and remain accessible even if they are deleted on Twitter,
+  the user gets suspended or deletes their account,
+  etc.
+* `ornithography` is a Hugo theme that displays tweets downloaded by cockatrice.
+  It includes shortcodes `twarchiveTweet` and `twarchiveThread`.
+  It is just a utility theme,
+  meant to augment any other Hugo theme by displaying twarchive data.
+  All tweets it displays are downloadable by users to a single HTML file.
+  It uses no Twitter styles or Twitter JavaScript,
+  but (unfortunately) JavaScript is required to get good UX for displaying them in an iframe.
+* `aviary` is a second Hugo theme that can be used for creating a basic site.
+  It's designed for users that want a dedicated site to keep a copy of all of their tweets.
+  It's used in the example site,
+  and also at <https://tweets.micahrl.com>.
+* `flock` is an example site,
+  which shows both the basic `aviary` theme
+  and also the `ornithography` theme to display tweets.
 
 ## How it works
 
