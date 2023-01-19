@@ -2,8 +2,11 @@
 
 # TWV = twarchive version
 TWV := $(shell venv/bin/twarchive version --quiet)
-DIST_WHEEL := dist/twarchive-$(TWV)-py3-none-any.whl
-DIST_TARGZ := dist/twarchive-$(TWV).tar.gz
+DIST_WHEEL := twarchive/dist/twarchive-$(TWV)-py3-none-any.whl
+DIST_TARGZ := twarchive/dist/twarchive-$(TWV).tar.gz
+
+# The now-defunct Twitter SMS shortcode
+DEVPORT := 40404
 
 .PHONY: help
 help: ## Show this help
@@ -14,15 +17,15 @@ help: ## Show this help
 
 .PHONY: clean
 clean: ## Remove venv, builds, etc
-	rm -rf venv dist *.egg-info
+	rm -rf venv dist *.egg-info twarchive/dist twarchive/*.egg-info
 
 venv: ## Create the virtual environment
 	python3 -m venv venv
 	venv/bin/pip install --upgrade pip setuptools twine build
-	venv/bin/pip install -e .
+	venv/bin/pip install -e ./twarchive
 
 $(DIST_WHEEL) $(DIST_TARGZ): venv
-	venv/bin/python -m build
+	cd ./twarchive && ../venv/bin/python -m build
 
 showdist: venv ## Show files in the dist/ directory
 	@ls -alF $(DIST_WHEEL)
@@ -38,8 +41,8 @@ twineupload: venv $(DIST_WHEEL) $(DIST_TARGZ) ## Upload Python packages to PyPi
 
 .PHONY: tests
 tests: venv ## Run unit tests for the Python project
-	venv/bin/python -m unittest discover
+	cd ./twarchive && ../venv/bin/python -m unittest discover
 
 .PHONY: dev
 dev: ## Run a dev server for the exampleSite
-	cd ./exampleSite && hugo serve &
+	cd ./exampleSite && hugo serve --port $(DEVPORT)
