@@ -9,8 +9,9 @@
 {{- $tweetArchivePageRef := printf "/twarchive/%s/index.tweet.html" .tweetId }}
 
 <iframe
-  id="twarchive-html-iframe"
-  class="twarchive-html-iframe twarchive-html-iframe-{{ $tweet.id }}"
+  class="twarchive-html-iframe twarchive-html-iframe-{{ .tweetId }} twarchive-html-iframe-instance-{{ .File.ContentBaseName }}"
+  twarchive-tweet-id="{{ .tweetId }}"
+  twarchive-tweet-instance="{{ .File.ContentBaseName }}"
   style="box-sizing: border-box;"
   scrolling="no"
   src='{{ $tweetArchivePageRef }}'

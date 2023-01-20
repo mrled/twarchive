@@ -1,8 +1,28 @@
+/* JavaScript inside each child frame
+ *
+ * This is referenced from layouts/partials/twarchive/sigle.tweet.html,
+ * which also sets a const tweetId.
+ */
+
 {{- partial "js/twarchiveEverywhere.js" -}}
 
 /* We use a global variable (attached to the window object) for a resize observer
  */
 window.twarchiveResizeObserver = null;
+
+/* Ask the parent frame to log a message for us.
+ * console.log() here doesn't show up unless inspecting this frame,
+ * so we pass messages to the parent.
+ */
+function twarchiveMessageLogEventToParent(level, logMessage) {
+  const prefix = `twarchiveMessageLogEventToParent for tweet '${tweetId}' instance '${tweetInstance}'`
+  const eventMessage = {
+    twarchiveEvent: "twarchive-child-frame-log",
+    level,
+    message: `${prefix}: ${logMessage}`,
+  };
+  window.parent.postMessage(eventMessage, "*");
+}
 
 /* Message parent frame our size
  */
@@ -10,7 +30,7 @@ function twarchiveMessageSizeToParent(tweetId) {
   const w = window.innerWidth;
   const h = window.innerHeight;
   const msg = {twarchiveEvent: "twarchive-resize", tweetId, w, h};
-  // console.log(`Messaging parent window: ${JSON.stringify(msg)}`);
+  twarchiveMessageLogEventToParent("log", `Messaging parent window: ${JSON.stringify(msg)}`)
   window.parent.postMessage(msg, "*");
 }
 
@@ -57,7 +77,7 @@ function twarchiveHandleDataUri(dataUri) {
     // If this page is the top frame, we need display the image ourselves
     window.location.hash = `?twarchive-datauri#${dataUri}`;
     window.location.href = `${window.location.href}?twarchive-datauri#${dataUri}`;
-    console.log(`Setting window.location.href to ${window.location.href}`)
+    twarchiveMessageLogEventToParent("log", `Setting window.location.href to ${window.location.href}`)
     twarchiveDisplayDataUri();
   } else {
     // If we are in an iframe, we should tell our parent to display the image

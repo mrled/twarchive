@@ -28,3 +28,16 @@ function twarchiveDisplayDataUri() {
     document.body.appendChild(frame);
   }
 }
+
+function twarchiveLog(level, message) {
+  if (!localStorage.getItem("ornithography-logs-enabled")) return;
+  let logfunc = console.log;
+  switch (level) {
+    case "debug": logfunc = console.debug;
+    case "error": logfunc = console.error;
+    case "log":
+    default:
+      logfunc = console.log;
+  }
+  logfunc(message);
+}

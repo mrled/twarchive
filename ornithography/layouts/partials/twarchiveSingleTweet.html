@@ -5,7 +5,9 @@
    *  tweetId     The ID of a tweet already downloaded by my `tweet` script to data/twarchive/$tweetId.json
    *  isQt        If true, then we are rendering a QT'd tweet inside of another tweet.
    *              In that case, everything is mostly the same, but we don't render any tweets that THIS tweet QTs.
-   *  rtId       The ID of a tweet that RTs this one. Used internally.
+   *  rtId        The ID of a tweet that RTs this one. Used internally.
+   *  suggestion  A text string indicating that a tweet was suggested in the Home/For You timeline.
+   *  disclaimer  A text string containing a disclaimer about the tweet's content.
    */}}
 {{- $tweet := index .ctx.Site.Data.twarchive .tweetId -}}
 {{- $tweetLocalArchivePage := "" -}}
@@ -31,6 +33,11 @@
 {{- partial "twarchiveSingleTweet.html" (dict "ctx" .ctx "tweetId" $tweet.rt_of "rtId" $tweet.id) -}}
 {{- else -}}
 <blockquote class="twarchive" xmlns="http://www.w3.org/1999/xhtml">
+  {{- if .suggestion -}}
+  <div class="twarchive-suggestion">
+    <p>Suggestion: {{ .suggestion }}</p>
+  </div>
+  {{- end -}}
   {{- if .rtId -}}
   {{- $retweet := index .ctx.Site.Data.twarchive .rtId -}}
   {{- $rtUserUri := printf "https://twitter.com/%s" $retweet.username -}}
@@ -58,7 +65,7 @@
     </p>
   </div>
   {{- end -}}
-  <button class="twarchive-about-button" onclick="twarchiveToggleTweetExplanation(this, '{{ $tweet.id }}')">
+  <button class="twarchive-about-button" onclick="twarchiveToggleTweetExplanation(this, '{{ .tweetId }}')">
     ?
   </button>
 
@@ -81,7 +88,7 @@
       <p>
         {{ if $tweetLocalArchivePage }}(<a href="{{ $tweetLocalArchivePage }}">local archive</a>){{ else }}(no local archive){{ end }}
         (<a href="{{ $tweetUri }}">twitter</a>)
-        (<a href="" download="tweet-{{ $tweet.id }}.html">download</a>)
+        (<a href="" download="tweet-{{ .tweetId }}.html">download</a>)
       </p>
       {{- else -}}
       <p>Error: at build time, could not find data for tweet ID: <code>{{ .tweetId }}</code></p>
@@ -135,6 +142,12 @@
       <time class="twarchive-dt" datetime="{{ $tweet.date }}">{{ $tweet.date_original_format }}</time>
     </a>
   </div>
+
+  {{- if .disclaimer -}}
+  <div class="twarchive-disclaimer">
+    <p>Disclaimer: {{ .disclaimer }}</p>
+  </div>
+  {{- end -}}
 
 </blockquote>
 {{- end -}}

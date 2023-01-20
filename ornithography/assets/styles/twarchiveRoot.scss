@@ -18,6 +18,8 @@
   --twarchive-about-button-fg-color: var(--twarchive-twitter-black);
   --twarchive-expanded-header-fg-color: var(--twarchive-twitter-darkgray);
   --twarchive-reply-banner-fg-color: var(--twarchive-twitter-lightgray);
+  --twarchive-suggestion-fg-color: var(--twarchive-twitter-lightgray);
+  --twarchive-disclaimer-fg-color: var(--twarchive-twitter-lightgray);
 
   --twarchive-font-size: 0.85em;
   --twarchive-line-height: 1.4em;
@@ -52,6 +54,15 @@ blockquote.twarchive {
     &:visited {
       color: var(--twarchive-twitter-blue);
     }
+  }
+
+  div.twarchive-suggestion {
+    font-size: .8em;
+    color: var(--twarchive-suggestion-fg-color);
+  }
+  .twarchive-disclaimer p {
+    font-size: .8em;
+    color: var(--twarchive-disclaimer-fg-color);
   }
 
   .twarchive-rt-banner p {

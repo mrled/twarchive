@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html style="height: 100%; overflow: visible;">
 
 {{- $tweet := index .Site.Data.twarchive .Params.tweetid -}}
@@ -17,12 +18,14 @@
 
 <body>
 <section class="twarchive-content">
-  {{ partial "twarchiveSingleTweet.html" (dict "ctx" . "tweetId" .Params.tweetid) }}
+  {{ partial "twarchiveSingleTweet.html" (dict "ctx" . "tweetId" .Params.tweetid "suggestion" .Params.suggestion "disclaimer" .Params.disclaimer) }}
 </section>
 
 <script>
-  {{- partial "js/twarchiveChildFrame.js" | safeJS -}}
   const tweetId = "{{ .Params.tweetId }}"
+  const tweetInstance = "{{ .File.ContentBaseName }}"
+
+  {{- partial "js/twarchiveChildFrame.js" | safeJS -}}
 
   // Note that the observer fires when it starts.
   // https://stackoverflow.com/questions/67751039/javascript-resizeobserver-is-triggered-unexpected

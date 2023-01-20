@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 {{/** This is just an example single.html.
     * You probably want to override this with one in your site which uses your site's CSS, partials, etc.
     */}}
@@ -11,7 +12,7 @@
   <h1 id="single-tweet-page-h1">
     Tweet from @{{ $tweet.username}} on {{ $tweetDate.Format .Site.Params.dateform }}
   </h1>
-  {{- partial "twarchiveFrame.html" (dict "ctx" . "tweetId" .Params.tweetid) -}}
+  {{- partial "twarchiveFrame.html" (dict "ctx" . "tweetId" .Params.tweetid "suggestion" .Params.suggestion "disclaimer" .Params.disclaimer) -}}
 </section>
 <script>
   {{- partial "js/twarchiveTopFrame.js" | safeJS -}}

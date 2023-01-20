@@ -1,1 +1,4 @@
-{{- partial "twarchiveFrame.html" (dict "ctx" . "tweetId" (.Get 0)) -}}
+{{- $tweetId := .Get 0 -}}
+{{- $suggestion := .Get 1 -}}
+{{- $disclaimer := .Get 2 -}}
+{{- partial "twarchiveFrame.html" (dict "ctx" . "tweetId" $tweetId "suggestion" $suggestion "disclaimer" $disclaimer) -}}
