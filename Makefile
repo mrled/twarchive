@@ -46,3 +46,7 @@ tests: venv ## Run unit tests for the Python project
 .PHONY: dev
 dev: ## Run a dev server for the exampleSite
 	cd ./exampleSite && hugo serve --port $(DEVPORT)
+
+.PHONY: site
+site: ## Build the exampleSite for production
+	cd ./exampleSite && hugo
