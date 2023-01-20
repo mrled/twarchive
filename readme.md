@@ -300,6 +300,10 @@ optional arguments:
 
 - `twarchive` uses v1.1 of the API, not v2. This means we do not support polls, but you can run the script out of the box without providing any credentials.
 
+## Acknowledgements
+
+* The Aviary default favicon comes from Twemoji 14.0
+
 ## Todo
 
 - Rename `twarchiveRoot.scss`; it is only used internally and the name should reflect that.
