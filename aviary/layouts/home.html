@@ -1,9 +1,3 @@
-<html>
-{{ partial "head.html" . }}
-<body>
-  {{ partial "sitenav.html" . }}
-  <section class="tweets-micahrl-content">
-    {{ .Content }}
-  </section>
-</body>
-</html>
+{{- define "main" }}
+  {{- .Content -}}
+{{- end }}

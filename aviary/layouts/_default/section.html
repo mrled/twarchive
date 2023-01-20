@@ -1,0 +1,11 @@
+{{- define "main" }}
+  {{ .Content }}
+
+  <ul class=posts_listing>
+    {{ range .Pages }}
+      <li><h3><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
+        <p class="posts-listing-desc">{{ .Description | default "" }}</p>
+      </li>
+    {{ end }}
+  </ul>
+{{- end }}

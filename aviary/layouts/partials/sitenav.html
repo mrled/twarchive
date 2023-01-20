@@ -1,11 +1,19 @@
 <div class="tweets-micahrl-sitenav">
   <!-- <a href="{{ .Site.BaseURL }}">{{ .Site.BaseURL }}</a> -->
   <ol>
-    <li>
-      <a href='/'>Home</a>
-    </li>
-    <li>
-      <a href='{{ ref . "twarchive" }}'>Tweets</a>
-    </li>
+    {{- if .Site.Menus.aviary -}}
+      {{- range .Site.Menus.aviary -}}
+      <li>
+        <a href="{{ .URL }}">{{ .Name }}</a>
+      </li>
+      {{- end -}}
+    {{- else -}}
+      <li>
+        <a href="/">Home</a>
+      </li>
+      <li>
+        <a href="/twarchive">Tweets</a>
+      </li>
+    {{- end }}
   </ol>
 </div>
