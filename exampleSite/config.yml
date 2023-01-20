@@ -2,10 +2,16 @@ baseURL: http://twarchive.example.org
 languageCode: en-us
 title: twarchive example site
 
-module:
-  imports:
-    - path: github.com/mrled/twarchive/aviary
-    - path: github.com/mrled/twarchive/ornithography
+# In production, use the published modules
+# module:
+#   imports:
+#     - path: github.com/mrled/twarchive/aviary
+#     - path: github.com/mrled/twarchive/ornithography
+
+# In development, symlink these directories under themes/
+theme:
+- aviary
+- ornithography
 
 mediaTypes:
   text/html+tweet:
@@ -16,7 +22,6 @@ outputs:
     - HTML
   section:
     - HTML
-    - HtmlTweet
 
 outputFormats:
   HtmlTweet:
@@ -31,3 +36,15 @@ params:
 disableKinds:
   - taxonomy
   - taxonomyTerm
+
+menu:
+  aviary:
+    - name: Home
+      url: /
+      weight: 10
+    - name: Tweets
+      url: /twarchive
+      weight: 20
+    - name: Annotations
+      url: /annotations
+      weight: 30
