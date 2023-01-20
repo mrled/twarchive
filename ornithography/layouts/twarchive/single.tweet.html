@@ -18,7 +18,7 @@
 
 <body>
 <section class="twarchive-content">
-  {{ partial "twarchiveSingleTweet.html" (dict "ctx" . "tweetId" .Params.tweetid "suggestion" .Params.suggestion "disclaimer" .Params.disclaimer) }}
+  {{ partial "twarchiveSingleTweet.html" (dict "ctx" . "tweetId" .Params.tweetid "tweetInstance" .File.ContentBaseName "suggestion" .Params.suggestion "disclaimer" .Params.disclaimer) }}
 </section>
 
 <script>

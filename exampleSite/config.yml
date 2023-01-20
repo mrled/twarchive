@@ -27,7 +27,8 @@ outputFormats:
   HtmlTweet:
     mediatype: text/html+tweet
     suffix: tweet.html
-    isPlainText: true
+    isPlainText: false
+    isHTML: true
     notAlternative: false
 
 params:

@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+{{ partial "twarchiveDefaultHead.html" . }}
+<body>
+  {{ partial "sitenav.html" . }}
+  {{- block "title" . }}
+    <h1>{{ .Title }}</h1>
+  {{- end -}}
+  <main id="content" class="twarchive-content">
+    {{- block "main" . }}{{ end }}
+  </main>
+</body>
+</html>

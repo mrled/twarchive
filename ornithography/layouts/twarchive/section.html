@@ -1,26 +1,23 @@
-<!DOCTYPE html>
 {{/** This is just an example section.html.
     * You probably want to override this with one in your site which uses your site's CSS, partials, etc.
     */}}
-<html>
-{{ partial "twarchiveDefaultHead.html" . }}
-<body>
-<section class="twarchive-content">
 
-  {{- .Content -}}
+{{- define "title" -}}
+<h1>Tweet archive</h1>
+{{- end -}}
 
-  <p>Every tweet archived on this site</p>
+{{- define "main" -}}
+{{- .Content -}}
 
-  {{/*- partial "twarchivePaginatedSimpleTweetList.html" . -*/}}
-  {{- partial "twarchivePaginatedAbbreviatedTweetTable.html" . -}}
+<p>Every tweet archived on this site</p>
 
-  {{/** Warning: this must come AFTER your .Paginator or .Paginate call.
-      * (And .Paginator is called in twarchivePaginated* partials.)
-      * If it comes first, you will not be able to set the per-page count.
-      * <https://discourse.gohugo.io/t/cant-override-paginator-global-page-size/33829>
-      */}}
-  {{ template "_internal/pagination.html" . }}
+{{/*- partial "twarchivePaginatedSimpleTweetList.html" . -*/}}
+{{- partial "twarchivePaginatedAbbreviatedTweetTable.html" . -}}
 
-</section>
-</body>
-</html>
+{{/** Warning: this must come AFTER your .Paginator or .Paginate call.
+    * (And .Paginator is called in twarchivePaginated* partials.)
+    * If it comes first, you will not be able to set the per-page count.
+    * <https://discourse.gohugo.io/t/cant-override-paginator-global-page-size/33829>
+    */}}
+{{ template "_internal/pagination.html" . }}
+{{- end -}}

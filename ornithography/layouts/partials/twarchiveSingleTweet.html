@@ -1,18 +1,20 @@
 {{/* Given a tweet JSON from scripts/tweet, inline it as HTML
    *
    * Expects to be passed a dict of the form:
-   *  ctx         The dot context
-   *  tweetId     The ID of a tweet already downloaded by my `tweet` script to data/twarchive/$tweetId.json
-   *  isQt        If true, then we are rendering a QT'd tweet inside of another tweet.
-   *              In that case, everything is mostly the same, but we don't render any tweets that THIS tweet QTs.
-   *  rtId        The ID of a tweet that RTs this one. Used internally.
-   *  suggestion  A text string indicating that a tweet was suggested in the Home/For You timeline.
-   *  disclaimer  A text string containing a disclaimer about the tweet's content.
+   *  ctx             The dot context
+   *  tweetId         The ID of a tweet already downloaded by my `tweet` script to data/twarchive/$tweetId.json
+   *  tweetInstance   The instance of a tweet, which may be the same as the ID,
+   *                  or it may be a separate file with a suggestion/disclaimer.
+   *  isQt            If true, then we are rendering a QT'd tweet inside of another tweet.
+   *                  In that case, everything is mostly the same, but we don't render any tweets that THIS tweet QTs.
+   *  rtId            The ID of a tweet that RTs this one. Used internally.
+   *  suggestion      A text string indicating that a tweet was suggested in the Home/For You timeline.
+   *  disclaimer      A text string containing a disclaimer about the tweet's content.
    */}}
 {{- $tweet := index .ctx.Site.Data.twarchive .tweetId -}}
 {{- $tweetLocalArchivePage := "" -}}
 {{- if $tweet -}}
-{{- $tweetLocalArchivePage = ref .ctx (printf "/twarchive/%s" .tweetId) -}}
+{{- $tweetLocalArchivePage = ref .ctx (printf "/twarchive/%s" .tweetInstance) -}}
 {{- end -}}
 
 {{/** Twitter will auto redirect tweets with the wrong username in the URL based only on the tweet ID
@@ -30,7 +32,7 @@
 {{- if $tweet.media }}{{ $tweetMediaLen = len $tweet.media }}{{ end -}}
 
 {{- if $tweet.rt_of -}}
-{{- partial "twarchiveSingleTweet.html" (dict "ctx" .ctx "tweetId" $tweet.rt_of "rtId" $tweet.id) -}}
+{{- partial "twarchiveSingleTweet.html" (dict "ctx" .ctx "tweetId" $tweet.rt_of "tweetInstance" $tweet.rt_of "rtId" $tweet.id) -}}
 {{- else -}}
 <blockquote class="twarchive" xmlns="http://www.w3.org/1999/xhtml">
   {{- if .suggestion -}}
@@ -65,7 +67,7 @@
     </p>
   </div>
   {{- end -}}
-  <button class="twarchive-about-button" onclick="twarchiveToggleTweetExplanation(this, '{{ .tweetId }}')">
+  <button class="twarchive-about-button" onclick="twarchiveToggleTweetExplanation(this, '{{ .tweetInstance }}')">
     ?
   </button>
 
@@ -88,7 +90,7 @@
       <p>
         {{ if $tweetLocalArchivePage }}(<a href="{{ $tweetLocalArchivePage }}">local archive</a>){{ else }}(no local archive){{ end }}
         (<a href="{{ $tweetUri }}">twitter</a>)
-        (<a href="" download="tweet-{{ .tweetId }}.html">download</a>)
+        (<a href="" download="tweet-{{ .tweetInstance }}.html">download</a>)
       </p>
       {{- else -}}
       <p>Error: at build time, could not find data for tweet ID: <code>{{ .tweetId }}</code></p>

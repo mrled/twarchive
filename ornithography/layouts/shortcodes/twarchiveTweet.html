@@ -1,4 +1,7 @@
+{{/*  {{- if .IsNamedParams -}}
+{{- partial "twarchiveFrame.html" (dict "ctx" . "tweetId" (.Get "id") "tweetInstance" (.Get "instance")) -}}
+{{- else -}}
 {{- $tweetId := .Get 0 -}}
-{{- $suggestion := .Get 1 -}}
-{{- $disclaimer := .Get 2 -}}
-{{- partial "twarchiveFrame.html" (dict "ctx" . "tweetId" $tweetId "suggestion" $suggestion "disclaimer" $disclaimer) -}}
+{{- partial "twarchiveFrame.html" (dict "ctx" . "tweetId" $tweetId "tweetInstance" $tweetId) -}}
+{{- end -}}  */}}
+{{- partial "twarchiveFrame.html" (dict "ctx" . "tweetInstance" (.Get 0)) -}}

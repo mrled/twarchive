@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="{{ .Site.LanguageCode }}">
+{{ partial "head.html" . }}
+<body>
+  {{ partial "sitenav.html" . }}
+  {{- block "title" . }}
+    <h1>{{ .Title }}</h1>
+  {{- end -}}
+  <main id="content" class="tweets-micahrl-content">
+    {{- block "main" . }}{{ end }}
+  </main>
+</body>
+</html>

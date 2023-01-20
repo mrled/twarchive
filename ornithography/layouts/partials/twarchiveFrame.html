@@ -1,17 +1,19 @@
 {{/** Show an iframe of a tweet page generated in content/twarchive/$tweetId/
     *
     * Expects to be passed a dict of the form:
-    *  ctx         The dot context
-    *  tweetId     The ID of a tweet already downloaded by my `tweet` script to data/twarchive/$tweetId.json
+    *  ctx            The dot context
+    *  tweetInstance  The instance of a tweet, the filename of the markdown file
     */}}
-{{- $ctx := .ctx -}}
-{{- $tweet := index $ctx.Site.Data.twarchive .tweetId -}}
-{{- $tweetArchivePageRef := printf "/twarchive/%s/index.tweet.html" .tweetId }}
+{{- $twarchiveSection := .ctx.Site.GetPage "/twarchive" }}
+{{- $tweetInstancePage := $twarchiveSection.GetPage .tweetInstance -}}
+{{- $tweetId := $tweetInstancePage.Params.tweetId -}}
+{{- $tweet := index .ctx.Site.Data.twarchive $tweetId -}}
+{{- $tweetArchivePageRef := printf "/twarchive/%s/index.tweet.html" .tweetInstance }}
 
 <iframe
-  class="twarchive-html-iframe twarchive-html-iframe-{{ .tweetId }} twarchive-html-iframe-instance-{{ .File.ContentBaseName }}"
-  twarchive-tweet-id="{{ .tweetId }}"
-  twarchive-tweet-instance="{{ .File.ContentBaseName }}"
+  class="twarchive-html-iframe twarchive-html-iframe-{{ $tweetId }} twarchive-html-iframe-instance-{{ .tweetInstance }}"
+  twarchive-tweet-id="{{ $tweetId }}"
+  twarchive-tweet-instance="{{ .tweetInstance }}"
   style="box-sizing: border-box;"
   scrolling="no"
   src='{{ $tweetArchivePageRef }}'
