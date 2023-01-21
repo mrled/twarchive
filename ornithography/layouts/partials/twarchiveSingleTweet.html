@@ -16,7 +16,7 @@
 {{- if $tweet -}}
   {{- $tweetInstancePath := "" -}}
   {{- if not .tweetInstance }}
-    {{- warnf "tweet id %s has no instance wtf" .tweetId }}
+    {{/*  {{- warnf "tweet id %s has no instance wtf" .tweetId }}  */}}
     {{- $tweetInstancePath = printf "/twarchive/%s" .tweetId }}
   {{- else -}}
     {{- $tweetInstancePath = printf "/twarchive/%s" .tweetInstance }}
