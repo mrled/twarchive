@@ -5,3 +5,4 @@
   - Don't ever bother redownloading tweets that are already in a Twitter archive
   - But do download tweets referenced from a Twitter archive (RTs and thread parents)
 - Why do I have both `thread_parent_id` and `replyto_tweetid` ??
+- Document threading support, and add example to exampleSite

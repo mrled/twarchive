@@ -1,0 +1,24 @@
+{
+  "date": "2022-01-11T01:08:08+00:00",
+  "date_original_format": "Tue Jan 11 01:08:08 +0000 2022",
+  "entities": {
+    "hashtags": [],
+    "symbols": [],
+    "urls": [],
+    "user_mentions": []
+  },
+  "full_html_link_qts": "A c program with a syntax error is not a c program <br/><br/>OR<br/><br/>Every text is a c program, most have a syntax error on the first line",
+  "full_html_strip_qts": "A c program with a syntax error is not a c program <br/><br/>OR<br/><br/>Every text is a c program, most have a syntax error on the first line",
+  "full_text": "A c program with a syntax error is not a c program \n\nOR\n\nEvery text is a c program, most have a syntax error on the first line",
+  "id": "1480708069017464832",
+  "media": [],
+  "qts": [],
+  "replyto_tweetid": null,
+  "replyto_username": null,
+  "retrieved_date": "2023-01-21T01:23:58.461042",
+  "rt_of": null,
+  "thread_parent_id": null,
+  "user_displayname": "Esoteric.Codes",
+  "user_pfp": "iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAAYFBMVEX///+Q97+Q97+Q97+Q97+Q97+Q97+Q97+Q97+Q97+Q97+Q97+Q97+Q97+Q97+Q97+Q979gpX9NhGYTIRkAAAAKEA2G57IdMSZ91qZzxpkmQjNqtYw6Y0wwUkBDc1lWlHMCvvMcAAAAEHRSTlMAEEBggKDA0JAgcLDgMFDw5smUUwAAAb9JREFUSImVVu2ugyAMNXFRYkz4+NHAuJH3f8uLoFLasnvXZJuzrQdO24PTxGxWy66N0fuiZu6ltq2ms3X7GK60YabV+OlCeEkZoCzVDTj2+rMI4fP9+ORbvHfhAmHb354glAAQ3H29jeI7BLDRiBkzWnay7doeKBuvCtEDIbZt+xAQWYyfv+zh6kUcwC4ue/EF1ZVfgWCJ41qUotD2WngM1KNEgExUBXDMoUkJegjLAGoxVn4bCvueO8yaE4TbH6wvcoMYJsyco2whhBhLkSGRjSixyg7gcBBT8McPqcUy7Tze5yDnMq0pvg+CsAtVOBvc5kcnyAMUiU9LJOEJYtv/ktWcMFCKkWm+aeuNj+cP7dViO6PV54FzcHaemLGwwmWKIA9ExoEkJCjaGidA5tOcrR0op6YoQX8jQPnUfhX6W27vsa10gOD5Qv+RbWREqwzZJ4wSpakI0NkE20MoIjO36DU+QwehqZDd0tsgfAdxC9lTbX8rGO7XFo+OlX91IBJjWQmodYcQVbOQWOeNj6CaQOWCnaRzt48sAD2h0jsBngz77vRFOnan7mAHPP6jg336+tWhoHz3clK3//H15xdUXHWZpg8moQAAAABJRU5ErkJggiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==",
+  "username": "EsotericCodes"
+}

@@ -12,5 +12,5 @@
       @{{ $tweet.username}}: {{ $tweet.full_text }}
     </span>
   </summary>
-  {{- partial "twarchiveFrame.html" (dict "ctx" .ctx "tweetId" .tweetId) -}}
+  {{- partial "twarchiveFrame.html" (dict "ctx" .ctx "tweetId" .tweetId "tweetInstance" .tweetId) -}}
 </details>

@@ -49,3 +49,6 @@ menu:
     - name: Annotations
       url: /annotations
       weight: 30
+    - name: Threads
+      url: /threads
+      weight: 40

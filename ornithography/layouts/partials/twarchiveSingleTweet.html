@@ -14,7 +14,14 @@
 {{- $tweet := index .ctx.Site.Data.twarchive .tweetId -}}
 {{- $tweetLocalArchivePage := "" -}}
 {{- if $tweet -}}
-{{- $tweetLocalArchivePage = ref .ctx (printf "/twarchive/%s" .tweetInstance) -}}
+  {{- $tweetInstancePath := "" -}}
+  {{- if not .tweetInstance }}
+    {{- warnf "tweet id %s has no instance wtf" .tweetId }}
+    {{- $tweetInstancePath = printf "/twarchive/%s" .tweetId }}
+  {{- else -}}
+    {{- $tweetInstancePath = printf "/twarchive/%s" .tweetInstance }}
+  {{- end -}}
+  {{- $tweetLocalArchivePage = ref .ctx $tweetInstancePath -}}
 {{- end -}}
 
 {{/** Twitter will auto redirect tweets with the wrong username in the URL based only on the tweet ID

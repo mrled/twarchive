@@ -1,0 +1,34 @@
+{
+  "date": "2022-12-05T16:29:46+00:00",
+  "date_original_format": "Mon Dec 05 16:29:46 +0000 2022",
+  "entities": {
+    "hashtags": [],
+    "symbols": [],
+    "urls": [
+      {
+        "display_url": "theguardian.com/uk-news/2020/n\u2026",
+        "expanded_url": "https://www.theguardian.com/uk-news/2020/nov/06/companies-house-forces-business-name-change-to-prevent-security-risk",
+        "indices": [
+          136,
+          159
+        ],
+        "url": "https://t.co/OlSXtu9mlB"
+      }
+    ],
+    "user_mentions": []
+  },
+  "full_html_link_qts": "Tangentially, this language is the sad result of weak and humo(u)rless politicians who believe in legal remedies to technical problems. <a href=\"https://www.theguardian.com/uk-news/2020/nov/06/companies-house-forces-business-name-change-to-prevent-security-risk\">theguardian.com/uk-news/2020/n\u2026</a>",
+  "full_html_strip_qts": "Tangentially, this language is the sad result of weak and humo(u)rless politicians who believe in legal remedies to technical problems. <a href=\"https://www.theguardian.com/uk-news/2020/nov/06/companies-house-forces-business-name-change-to-prevent-security-risk\">theguardian.com/uk-news/2020/n\u2026</a>",
+  "full_text": "Tangentially, this language is the sad result of weak and humo(u)rless politicians who believe in legal remedies to technical problems. https://t.co/OlSXtu9mlB",
+  "id": "1599803226160627719",
+  "media": [],
+  "qts": [],
+  "replyto_tweetid": "1599802189982990347",
+  "replyto_username": "mrled",
+  "retrieved_date": "2023-01-21T01:23:57.660853",
+  "rt_of": null,
+  "thread_parent_id": "1599802189982990347",
+  "user_displayname": "Micah R Ledbetter /m\u0279\u0329\u02c8led/",
+  "user_pfp": "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",
+  "username": "mrled"
+}
