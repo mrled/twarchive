@@ -31,10 +31,7 @@
 {{- $tweetUri := printf "https://twitter.com/%s/status/%s" ($tweet.username | default "_") .tweetId -}}
 
 {{- $userUri := printf "https://twitter.com/%s" $tweet.username -}}
-{{- $tweetBody := $tweet.full_body_strip_qts -}}
-{{- if .isQt }}
-{{- $tweetBody = $tweet.full_body_link_qts -}}
-{{- end -}}
+
 {{- $tweetMediaLen := 0 -}}
 {{- if $tweet.media }}{{ $tweetMediaLen = len $tweet.media }}{{ end -}}
 
