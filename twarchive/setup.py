@@ -26,7 +26,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/mrled/twarchive/",
-    packages=["twarchive"],
+    packages=["twarchive", "twarchive.inflatedtweet"],
     python_requires=">=3.9",
     include_package_data=True,
     install_requires=["tweepy"],
