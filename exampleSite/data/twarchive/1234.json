@@ -1,0 +1,22 @@
+{
+  "date": "2023-01-22T12:58:50-06:00",
+  "date_original_format": "2023-01-22T12:58:50",
+  "entities": null,
+  "fakepost": true,
+  "full_html_link_qts": "just setting up my twttr",
+  "full_html_strip_qts": "just setting up my twttr",
+  "full_text": "just setting up my twttr",
+  "id": "1234",
+  "media": [],
+  "post_uri": null,
+  "qts": [],
+  "replyto_tweetid": "",
+  "replyto_username": "",
+  "retrieved_date": "2023-01-22T12:58:50-06:00",
+  "rt_of": "",
+  "thread_parent_id": "",
+  "user_displayname": "myself and I",
+  "user_pfp": null,
+  "user_uri": null,
+  "username": "me"
+}

@@ -1,4 +1,5 @@
 import argparse
+import datetime
 import os
 import pdb
 import sys
@@ -168,6 +169,41 @@ def parseargs():
     )
     sub_tweet2data.add_argument("tweetid", help="ID of a tweet to download")
 
+    ## Subcommand: manual2data
+    sub_manual2data = subparsers.add_parser(
+        "manual2data",
+        parents=[hugo_opts],
+        help="Create a tweet from nothing, and store it under ./data/twarchive/$id.json",
+    )
+    sub_manual2data.add_argument(
+        "--id",
+        required=True,
+        help="The ID to use; this should not match a real Twitter ID, but can be any valid filename",
+    )
+    sub_manual2data.add_argument(
+        "--tweet-body",
+        required=True,
+        help="The body of the tweet; can include HTML, but we don't currently handle QTs as QTs",
+    )
+    sub_manual2data.add_argument(
+        "--username",
+        required=True,
+        help="The username for the tweet",
+    )
+    sub_manual2data.add_argument(
+        "--user-displayname",
+        required=True,
+        help="The user's displayname for the tweet",
+    )
+    sub_manual2data.add_argument(
+        "--post-uri",
+        help="The URI for the post (can be empty)",
+    )
+    sub_manual2data.add_argument(
+        "--user-uri",
+        help="The URI for the user (can be empty)",
+    )
+
     ## Subcommand: showinlines
     sub_showinlines = subparsers.add_parser(
         "showinlines",
@@ -282,6 +318,21 @@ def main():
             force=parsed.force,
             max_rlevel=parsed.max_recurse,
         )
+        hugo.data2md(site)
+
+    elif parsed.action == "manual2data":
+        site = hugo.HugoSite(parsed.hugo_site_base)
+        infltweet = InflatedTweet.minimal(
+            parsed.id,
+            datetime.datetime.now(),
+            parsed.tweet_body,
+            parsed.username,
+            parsed.user_displayname,
+            parsed.post_uri,
+            parsed.user_uri,
+        )
+        filename = os.path.join(site.data_twarchive, f"{parsed.id}.json")
+        infltweet.jdump(filepath=filename)
         hugo.data2md(site)
 
     elif parsed.action == "showinlines":

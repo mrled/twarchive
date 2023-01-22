@@ -7,6 +7,7 @@ are also downloaded and included.
 import base64
 import datetime
 import json
+import re
 import typing
 
 
@@ -67,6 +68,9 @@ class InflatedTweet:
         retrieved_date: typing.Optional[datetime.datetime] = None,
         replyto_tweetid: str = "",
         replyto_username: str = "",
+        fakepost: bool = False,
+        post_uri: str = "",
+        user_uri: str = "",
     ):
         self.id = id
 
@@ -97,9 +101,42 @@ class InflatedTweet:
         self.replyto_tweetid = replyto_tweetid
         self.replyto_username = replyto_username
 
+        self.fakepost = fakepost
+
+        self.post_uri = post_uri
+        self.user_uri = user_uri
+
     @property
     def profileimg_b64(self):
         return base64.b64encode(self.profileimg).decode()
+
+    @classmethod
+    def minimal(
+        cls,
+        id: str,
+        date: datetime.datetime,
+        body: str,
+        username: str,
+        user_displayname: str,
+        post_uri: str = "",
+        user_uri: str = "",
+    ):
+        body_strip_html = re.sub("<[^<]+?>", "", body)
+        return cls(
+            id,
+            date=date,
+            date_original_format=date.isoformat(timespec="seconds"),
+            full_text=body_strip_html,
+            full_html_strip_qts=body,
+            full_html_link_qts=body,
+            username=username,
+            user_displayname=user_displayname,
+            user_pfp=None,
+            retrieved_date=date,
+            fakepost=True,
+            post_uri=post_uri,
+            user_uri=user_uri,
+        )
 
     def jdump(
         self,
@@ -147,7 +184,7 @@ class InflatedTweetEncoder(json.JSONEncoder):
         if isinstance(obj, bytes):
             return base64.b64encode(obj).decode()
         if isinstance(obj, datetime.datetime):
-            return obj.isoformat()
+            return obj.astimezone().isoformat(timespec="seconds")
         return json.JSONEncoder.default(self, obj)
 
 

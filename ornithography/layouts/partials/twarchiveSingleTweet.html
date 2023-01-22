@@ -24,13 +24,19 @@
   {{- $tweetLocalArchivePage = ref .ctx $tweetInstancePath -}}
 {{- end -}}
 
+{{- $postUri := $tweet.postUri -}}
+{{- if and (not $postUri) (not $tweet.fakepost) -}}
 {{/** Twitter will auto redirect tweets with the wrong username in the URL based only on the tweet ID
     * We can use this to provide a link to a tweet even if it isn't archived locally.
     * <https://www.bram.us/2017/11/22/accessing-a-tweet-using-only-its-id-and-without-the-twitter-api/>
     */}}
-{{- $tweetUri := printf "https://twitter.com/%s/status/%s" ($tweet.username | default "_") .tweetId -}}
+{{- $postUri := printf "https://twitter.com/%s/status/%s" ($tweet.username | default "_") .tweetId -}}
+{{- end -}}
 
+{{- $userUri := $tweet.userUri -}}
+{{- if and (not $userUri) (not $tweet.fakepost) -}}
 {{- $userUri := printf "https://twitter.com/%s" $tweet.username -}}
+{{- end -}}
 
 {{- $tweetMediaLen := 0 -}}
 {{- if $tweet.media }}{{ $tweetMediaLen = len $tweet.media }}{{ end -}}
@@ -87,15 +93,25 @@
         Tweet ID {{ .tweetId }}
       </p>
       {{- if $tweet -}}
+
+      {{- if $tweet.fakepost -}}
+      <p>This tweet was created by hand and not retrieved from the Twitter API.</p>
+      <p>
+        {{ if $tweetLocalArchivePage }}(<a href="{{ $tweetLocalArchivePage }}">local archive</a>){{ else }}(no local archive){{ end }}
+        (<a href="" download="tweet-{{ .tweetInstance }}.html">download</a>)
+      </p>
+      {{- else -}}
       {{/* I wish I could have the normal click just show the link in a new window, but that won't work on Chromium browsers
           * Chrome has disabled data: URIs for left clicks, but still allows them for right click -> new window.
           */}}
       <p>Tweet was retrieved from the Twitter API on {{ $tweet.retrieved_date }} and is presented in pure HTML+CSS, without Twitter's official styles or official tracking.</p>
       <p>
         {{ if $tweetLocalArchivePage }}(<a href="{{ $tweetLocalArchivePage }}">local archive</a>){{ else }}(no local archive){{ end }}
-        (<a href="{{ $tweetUri }}">twitter</a>)
+        (<a href="{{ $postUri }}">twitter</a>)
         (<a href="" download="tweet-{{ .tweetInstance }}.html">download</a>)
       </p>
+      {{- end -}}
+
       {{- else -}}
       <p>Error: at build time, could not find data for tweet ID: <code>{{ .tweetId }}</code></p>
       {{- end -}}
@@ -144,9 +160,13 @@
   {{- end -}}
 
   <div class="twarchive-footer">
-    <a class="twarchive-original-link" href="{{ $tweetUri }}">
+    {{- if $tweet.fakepost -}}
+    <time class="twarchive-dt" datetime="{{ $tweet.date }}">{{ $tweet.date_original_format }}</time>
+    {{- else -}}
+    <a class="twarchive-original-link" href="{{ $postUri }}">
       <time class="twarchive-dt" datetime="{{ $tweet.date }}">{{ $tweet.date_original_format }}</time>
     </a>
+    {{- end -}}
   </div>
 
   {{- if .disclaimer -}}
