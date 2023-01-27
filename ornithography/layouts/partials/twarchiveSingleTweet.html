@@ -82,7 +82,19 @@
   </button>
 
   <a class="twarchive-user" href="{{ $userUri }}">
-    <img class="twarchive-pfp" alt="" src="data:image/jpeg;base64,{{ $tweet.user_pfp }}" />
+    {{- if $tweet.user_pfp -}}
+    <img
+      class="twarchive-pfp"
+      alt=""
+      src="data:image/jpeg;base64,{{ $tweet.user_pfp }}"
+    />
+    {{- else -}}
+    {{- $pfpBgColor := default "gray" $tweet.user_pfp_background -}}
+    <div
+      class="twarchive-pfp"
+      style="background-color: {{ $pfpBgColor }};"
+    ></div>
+    {{- end -}}
     <p class="twarchive-display-name">{{ $tweet.user_displayname }}</p>
     <p class="twarchive-username">@{{ $tweet.username }}</p>
   </a>
@@ -95,22 +107,15 @@
       {{- if $tweet -}}
 
       {{- if $tweet.fakepost -}}
-      <p>This tweet was created by hand and not retrieved from the Twitter API.</p>
-      <p>
-        {{ if $tweetLocalArchivePage }}(<a href="{{ $tweetLocalArchivePage }}">local archive</a>){{ else }}(no local archive){{ end }}
-        (<a href="" download="tweet-{{ .tweetInstance }}.html">download</a>)
-      </p>
+      <p>This post is fake, not an archive of a real tweet.</p>
       {{- else -}}
-      {{/* I wish I could have the normal click just show the link in a new window, but that won't work on Chromium browsers
-          * Chrome has disabled data: URIs for left clicks, but still allows them for right click -> new window.
-          */}}
       <p>Tweet was retrieved from the Twitter API on {{ $tweet.retrieved_date }} and is presented in pure HTML+CSS, without Twitter's official styles or official tracking.</p>
+      {{- end -}}
       <p>
         {{ if $tweetLocalArchivePage }}(<a href="{{ $tweetLocalArchivePage }}">local archive</a>){{ else }}(no local archive){{ end }}
         (<a href="{{ $postUri }}">twitter</a>)
         (<a href="" download="tweet-{{ .tweetInstance }}.html">download</a>)
       </p>
-      {{- end -}}
 
       {{- else -}}
       <p>Error: at build time, could not find data for tweet ID: <code>{{ .tweetId }}</code></p>

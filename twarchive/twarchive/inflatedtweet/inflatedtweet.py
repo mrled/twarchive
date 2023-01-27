@@ -71,6 +71,7 @@ class InflatedTweet:
         fakepost: bool = False,
         post_uri: str = "",
         user_uri: str = "",
+        user_pfp_background_color: str = "",
     ):
         self.id = id
 
@@ -106,6 +107,8 @@ class InflatedTweet:
         self.post_uri = post_uri
         self.user_uri = user_uri
 
+        self.user_pfp_background_color = user_pfp_background_color
+
     @property
     def profileimg_b64(self):
         return base64.b64encode(self.profileimg).decode()
@@ -120,6 +123,7 @@ class InflatedTweet:
         user_displayname: str,
         post_uri: str = "",
         user_uri: str = "",
+        user_pfp_background_color: str = "",
     ):
         body_strip_html = re.sub("<[^<]+?>", "", body)
         return cls(
@@ -136,6 +140,7 @@ class InflatedTweet:
             fakepost=True,
             post_uri=post_uri,
             user_uri=user_uri,
+            user_pfp_background_color=user_pfp_background_color,
         )
 
     def jdump(

@@ -203,6 +203,10 @@ def parseargs():
         "--user-uri",
         help="The URI for the user (can be empty)",
     )
+    sub_manual2data.add_argument(
+        "--user-pfp-color",
+        help="A color to use for the profile circle",
+    )
 
     ## Subcommand: showinlines
     sub_showinlines = subparsers.add_parser(
@@ -330,6 +334,7 @@ def main():
             parsed.user_displayname,
             parsed.post_uri,
             parsed.user_uri,
+            parsed.user_pfp_color,
         )
         filename = os.path.join(site.data_twarchive, f"{parsed.id}.json")
         infltweet.jdump(filepath=filename)
