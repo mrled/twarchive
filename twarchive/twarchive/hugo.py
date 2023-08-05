@@ -5,6 +5,7 @@ import json
 import os
 import pathlib
 import re
+import string
 import subprocess
 import textwrap
 import typing
@@ -76,14 +77,50 @@ def showinlines(site: HugoSite):
 
 def data2md(site: HugoSite):
     """For tweets that have been downloaded to the data directory, make a page for them in the content"""
-    os.makedirs(site.content_twarchive, exist_ok=True)
-    for tweet_json in os.listdir(site.data_twarchive):
+
+    tweets = {}
+    tweetgraph = {}
+
+    # Load all tweets into RAM so that we only have to read from the filesystem once.
+    # For reference, my archive of 2700 tweets is 323MB on disk and takes about 2-3 seconds to load.
+    tweet_file_list = os.listdir(site.data_twarchive)
+    for idx, tweet_json in enumerate(tweet_file_list):
+        if idx % 100 == 0:
+            print(f"Loading tweet {idx} of {len(tweet_file_list)}")
         tweet_json_path = os.path.join(site.data_twarchive, tweet_json)
         with open(tweet_json_path) as tjfp:
             tweet = json.load(tjfp)
-        tweet_date = datetime.datetime.strptime(tweet["date"], "%Y-%m-%dT%H:%M:%S%z")
         tweetid = tweet_json.strip(".json")
+        tweets[tweetid] = tweet
+
+        if tweet.get("replyto_tweetid"):
+            tweetgraph[tweetid] = tweet["replyto_tweetid"]
+
+    parents = list(set(tweetgraph.values()))
+    thread_finals = [t for t in tweetgraph.keys() if t not in parents]
+
+    # Find the end of every reply chain.
+    for childid in tweetgraph:
+        if childid not in parents:
+            thread_finals += [childid]
+
+    # For the ends of reply chains, we'll add content with the whole thread.
+    thread_addemdum_template = string.Template(
+        "\n".join(
+            [
+                "",
+                "This tweet is part of a thread:",
+                "",
+                r"""{{% twarchiveThread "$tweetid" %}}""",
+                "",
+            ]
+        )
+    )
+
+    os.makedirs(site.content_twarchive, exist_ok=True)
+    for tweetid, tweet in tweets.items():
         tweet_md_path = os.path.join(site.content_twarchive, f"{tweetid}.md")
+        tweet_date = datetime.datetime.strptime(tweet["date"], "%Y-%m-%dT%H:%M:%S%z")
         mdcontents = textwrap.dedent(
             f"""\
             ---
@@ -92,5 +129,11 @@ def data2md(site: HugoSite):
             ---
             """
         )
+
+        if tweetid in thread_finals:
+            mdcontents += (
+                "\n\n" + thread_addemdum_template.substitute(tweetid=tweetid) + "\n"
+            )
+
         with open(tweet_md_path, "w") as tmdfp:
             tmdfp.write(mdcontents)
