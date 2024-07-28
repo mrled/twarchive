@@ -1,4 +1,5 @@
-{{- partial "js/twarchiveEverywhere.js" -}}
+/* Code loaded in the top frame (requires twarchiveCommon.js)
+ */
 
 /* Code to expand/collapse all tweets on a page
  */

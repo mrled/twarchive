@@ -13,10 +13,8 @@
   {{- $twarchiveStyles := resources.Get "styles/twarchiveStyles.scss" | resources.ToCSS | resources.Fingerprint }}
   <link rel="stylesheet" href="{{ $twarchiveStyles.Permalink }}">
 
-  <script>
-    {{- partial "js/twarchiveTopFrame.js" | safeJS -}}
-    twarchiveDisplayDataUri();
-  </script>
+  {{- $twarchiveTopFrameBundleJs := slice (resources.Get "scripts/twarchiveCommon.js") (resources.Get "scripts/twarchiveTopFrame.js") | resources.Concat "twarchiveTopFrameBundle.js" | minify | fingerprint }}
+  <script src="{{ $twarchiveTopFrameBundleJs.Permalink }}" onload="twarchiveDisplayDataUri()"></script>
 
   {{- $siteStyles := resources.Get "site.scss" | resources.ToCSS | resources.Fingerprint }}
   <link rel="stylesheet" href="{{ $siteStyles.Permalink }}">

@@ -21,11 +21,12 @@
   {{ partial "twarchiveSingleTweet.html" (dict "ctx" . "tweetId" .Params.tweetid "tweetInstance" .File.ContentBaseName "suggestion" .Params.suggestion "disclaimer" .Params.disclaimer) }}
 </section>
 
+{{- $twarchiveChildFrameBundleJs := slice (resources.Get "scripts/twarchiveCommon.js") (resources.Get "scripts/twarchiveChildFrame.js") | resources.Concat "twarchiveChildFrameBundleJs.js" | minify | fingerprint }}
 <script>
-  const tweetId = "{{ .Params.tweetId }}"
-  const tweetInstance = "{{ .File.ContentBaseName }}"
+  const tweetId = "{{ .Params.tweetId }}";
+  const tweetInstance = "{{ .File.ContentBaseName }}";
 
-  {{- partial "js/twarchiveChildFrame.js" | safeJS -}}
+  {{- $twarchiveChildFrameBundleJs.Content | safeJS }}
 
   // Note that the observer fires when it starts.
   // https://stackoverflow.com/questions/67751039/javascript-resizeobserver-is-triggered-unexpected

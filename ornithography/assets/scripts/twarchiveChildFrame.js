@@ -1,10 +1,8 @@
-/* JavaScript inside each child frame
+/* JavaScript inside each child frame (requires twarchiveCommon.js)
  *
  * This is referenced from layouts/partials/twarchive/sigle.tweet.html,
  * which also sets a const tweetId.
  */
-
-{{- partial "js/twarchiveEverywhere.js" -}}
 
 /* We use a global variable (attached to the window object) for a resize observer
  */

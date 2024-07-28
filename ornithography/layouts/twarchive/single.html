@@ -17,7 +17,6 @@
   <p><a href='{{ ref . "/twarchive" }}'>About archived tweets</a></p>
   {{- partial "twarchiveFrame.html" (dict "ctx" . "tweetInstance" .File.ContentBaseName) -}}
   <script>
-    {{- partial "js/twarchiveTopFrame.js" | safeJS -}}
     twarchiveDisplayDataUri();
   </script>
 {{- end -}}

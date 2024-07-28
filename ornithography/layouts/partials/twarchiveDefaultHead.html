@@ -19,8 +19,9 @@
   {{- $twarchiveDefaultStyles := resources.Get "styles/twarchiveDefaultStyles.scss" | resources.ToCSS | resources.Fingerprint }}
   <link rel="stylesheet" href="{{ $twarchiveDefaultStyles.Permalink }}">
 
+  {{- $twarchiveTopFrameJs := resources.Get "scripts/twarchiveTopFrame.js" | resources.Minify | resources.Fingerprint }}
+  <script src="{{ $twarchiveTopFrameJs.Permalink }}"></script>
   <script>
-    {{- partial "js/twarchiveTopFrame.js" | safeJS -}}
     twarchiveDisplayDataUri();
   </script>
 </head>
