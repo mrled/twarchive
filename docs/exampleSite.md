@@ -27,10 +27,6 @@ module:
     - path: github.com/mrled/twarchive/aviary
     - path: github.com/mrled/twarchive/ornithography
 
-mediaTypes:
-  text/html+tweet:
-    suffixes: ["tweet.html"]
-
 outputs:
   home:
     - HTML

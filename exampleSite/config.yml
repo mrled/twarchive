@@ -13,10 +13,6 @@ theme:
 - aviary
 - ornithography
 
-mediaTypes:
-  text/html+tweet:
-    suffixes: ["tweet.html"]
-
 outputs:
   home:
     - HTML

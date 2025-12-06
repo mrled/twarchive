@@ -65,11 +65,6 @@ theme:
 - cistercian                                  # A secondary theme I made for my site, found at themes/cistercian
 - github.com/mrled/twarchive/ornithography    # The ornithography theme, NOT checked out inside of themes/, used directly
 
-# Set up media types
-mediaTypes:
-  text/html+tweet:
-    suffixes: ["tweet.html"]
-
 # Set up output formats
 outputFormats:
   tweet:
