@@ -30,7 +30,7 @@
     * We can use this to provide a link to a tweet even if it isn't archived locally.
     * <https://www.bram.us/2017/11/22/accessing-a-tweet-using-only-its-id-and-without-the-twitter-api/>
     */}}
-{{- $postUri := printf "https://twitter.com/%s/status/%s" ($tweet.username | default "_") .tweetId -}}
+{{- $postUri = printf "https://twitter.com/%s/status/%s" ($tweet.username | default "_") .tweetId -}}
 {{- end -}}
 
 {{- $userUri := $tweet.userUri -}}
