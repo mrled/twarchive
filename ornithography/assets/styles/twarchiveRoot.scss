@@ -32,10 +32,6 @@
 
 blockquote.twarchive {
 
-  *, *:hover, *:hover *{
-    all: revert;
-  }
-
   margin: 0;
   background-color: var(--twarchive-body-bg-color);
   border-style: solid;
