@@ -10,13 +10,13 @@
   <title>{{ $title }}</title>
   <meta property="og:title" content="{{ $title }}" />
 
-  {{- $twarchiveStyles := resources.Get "styles/twarchiveStyles.scss" | resources.ToCSS | resources.Fingerprint }}
+  {{- $twarchiveStyles := resources.Get "styles/twarchiveStyles.scss" | css.Sass | resources.Fingerprint }}
   <link rel="stylesheet" href="{{ $twarchiveStyles.Permalink }}">
 
   {{- $twarchiveTopFrameBundleJs := slice (resources.Get "scripts/twarchiveCommon.js") (resources.Get "scripts/twarchiveTopFrame.js") | resources.Concat "twarchiveTopFrameBundle.js" | minify | fingerprint }}
   <script src="{{ $twarchiveTopFrameBundleJs.Permalink }}" onload="twarchiveDisplayDataUri()"></script>
 
-  {{- $siteStyles := resources.Get "site.scss" | resources.ToCSS | resources.Fingerprint }}
+  {{- $siteStyles := resources.Get "site.scss" | css.Sass | resources.Fingerprint }}
   <link rel="stylesheet" href="{{ $siteStyles.Permalink }}">
 
 </head>

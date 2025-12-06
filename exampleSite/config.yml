@@ -24,11 +24,11 @@ outputs:
     - HTML
 
 outputFormats:
-  HtmlTweet:
-    mediatype: text/html+tweet
-    suffix: tweet.html
-    isPlainText: false
-    isHTML: true
+  tweet:
+    basename: index.tweet
+    # Process with Go's text/template, not html/template
+    isPlainText: true
+    mediaType: text/html
     notAlternative: false
 
 params:
@@ -36,7 +36,6 @@ params:
 
 disableKinds:
   - taxonomy
-  - taxonomyTerm
 
 menu:
   aviary:

@@ -36,13 +36,14 @@ outputs:
     - HTML
   section:
     - HTML
-    - HtmlTweet
+    - tweet
 
 outputFormats:
-  HtmlTweet:
-    mediatype: text/html+tweet
-    suffix: tweet.html
+  tweet:
+    basename: index.tweet
+    # Process with Go's text/template, not html/template
     isPlainText: true
+    mediaType: text/html
     notAlternative: false
 
 params:
@@ -50,7 +51,6 @@ params:
 
 disableKinds:
   - taxonomy
-  - taxonomyTerm
 ```
 
 Get the aviary and ornithography themes as modules,

@@ -5,5 +5,5 @@ outputs:
 cascade:
     outputs:
         - HTML
-        - HtmlTweet
+        - tweet
 ---

@@ -72,10 +72,11 @@ mediaTypes:
 
 # Set up output formats
 outputFormats:
-  HtmlTweet:
-    mediatype: text/html+tweet
-    suffix: tweet.html
+  tweet:
+    basename: index.tweet
+    # Process with Go's text/template, not html/template
     isPlainText: true
+    mediaType: text/html
     notAlternative: false
 ```
 
@@ -90,7 +91,7 @@ That means a file `content/twarchive/_index.md` with frontmatter like:
     cascade:
         outputs:
             - HTML
-            - HtmlTweet
+            - tweet
     ---
 
     # Your tweet archive section page
@@ -119,7 +120,7 @@ which might have lines like this:
 ```go-html-template
 <head>
   <!-- ... -->
-  {{- $twarchiveStyles := resources.Get "styles/twarchiveStyles.scss" | resources.ToCSS | resources.Fingerprint }}
+  {{- $twarchiveStyles := resources.Get "styles/twarchiveStyles.scss" | css.Sass | resources.Fingerprint }}
   <link rel="stylesheet" href="{{ $twarchiveStyles.Permalink }}">
 
   <script>

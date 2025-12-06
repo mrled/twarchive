@@ -13,10 +13,10 @@
   <title>{{ $title }}</title>
   <meta property="og:title" content="{{ $title }}" />
 
-  {{- $twarchiveStyles := resources.Get "styles/twarchiveStyles.scss" | resources.ToCSS | resources.Fingerprint }}
+  {{- $twarchiveStyles := resources.Get "styles/twarchiveStyles.scss" | css.Sass | resources.Fingerprint }}
   <link rel="stylesheet" href="{{ $twarchiveStyles.Permalink }}">
 
-  {{- $twarchiveDefaultStyles := resources.Get "styles/twarchiveDefaultStyles.scss" | resources.ToCSS | resources.Fingerprint }}
+  {{- $twarchiveDefaultStyles := resources.Get "styles/twarchiveDefaultStyles.scss" | css.Sass | resources.Fingerprint }}
   <link rel="stylesheet" href="{{ $twarchiveDefaultStyles.Permalink }}">
 
   {{- $twarchiveTopFrameJs := resources.Get "scripts/twarchiveTopFrame.js" | resources.Minify | resources.Fingerprint }}

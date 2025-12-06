@@ -7,11 +7,11 @@
   <base target="_parent" />
   <title>Tweet from @{{ $tweet.username}} on {{ .Date.Format .Site.Params.dateform }}</title>
   <style>
-    {{- $twarchiveRoot := resources.Get "styles/twarchiveRoot.scss" | resources.ToCSS | minify -}}
+    {{- $twarchiveRoot := resources.Get "styles/twarchiveRoot.scss" | css.Sass | minify -}}
     {{- $twarchiveRoot.Content | safeCSS -}}
   </style>
   <style id="twarchive-dark-mode-overrides" media="all and (prefers-color-scheme: dark)">
-    {{- $twarchiveDarkModeOverrides := resources.Get "styles/twarchiveDarkModeOverrides.scss" | resources.ToCSS | minify -}}
+    {{- $twarchiveDarkModeOverrides := resources.Get "styles/twarchiveDarkModeOverrides.scss" | css.Sass | minify -}}
     {{- $twarchiveDarkModeOverrides.Content | safeCSS -}}
   </style>
 </head>
